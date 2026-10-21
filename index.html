@@ -137,8 +137,10 @@ input{font:inherit;color:inherit}
   border:1px dashed var(--line);color:var(--faint);text-align:center;background:none;
   letter-spacing:-.02em}
 .pre-btn:hover{border-style:solid;border-color:var(--accent);color:var(--accent)}
-.el-chip{grid-area:el;font-size:.69rem;font-weight:600;padding:2px 0;border-radius:999px;
-  border:1px solid currentColor;text-align:center}
+.el-chip{grid-area:el;font:inherit;font-size:.69rem;font-weight:600;padding:2px 0;
+  border-radius:999px;border:1px solid currentColor;text-align:center;
+  background:none;cursor:pointer}
+.el-chip:hover{background:var(--surface2)}
 .el-chip.mixed{border-color:var(--el-mixed);color:var(--el-mixed);letter-spacing:.02em}
 @supports (background-clip:text) or (-webkit-background-clip:text){
   .el-chip.mixed{background:var(--prism);-webkit-background-clip:text;background-clip:text;
@@ -193,6 +195,15 @@ input{font:inherit;color:inherit}
   padding:1px 4px;color:var(--dim);background:var(--sunk);white-space:nowrap}
 .wbtn:hover{border-color:var(--accent);color:var(--accent)}
 .ownb{min-width:2.6em;padding:1px 4px}
+.picb{min-width:2.2em;padding:1px 4px}
+.picb.has{border-color:var(--accent);color:var(--accent)}
+.addc{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;
+  background:var(--sunk);border:1px solid var(--line);border-radius:9px;padding:10px;margin-bottom:10px}
+.addc input,.addc select{background:var(--surface);border:1px solid var(--line);border-radius:6px;
+  padding:5px 7px;font-size:.78rem;color:var(--fg);min-width:0}
+.addc .wide{grid-column:1/4}
+.addc button{grid-column:1/4;padding:7px;border:1px solid var(--accent);border-radius:7px;
+  background:var(--accent-soft);color:var(--accent);font-size:.8rem;font-weight:600}
 .ownb.off{border-color:var(--danger);color:var(--danger);background:var(--danger-bg)}
 .r.unowned{opacity:.38}
 .r.unowned .fat{color:var(--faint)}
@@ -279,6 +290,13 @@ body.sheet-open{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 .ar-load.arm{border-color:var(--danger);color:var(--danger);background:var(--danger-bg)}
 .ar-danger{width:100%;margin-top:10px;padding:9px;border:1px solid var(--line);border-radius:8px;
   background:var(--sunk);color:var(--dim);font-size:.8rem;font-weight:600}
+.imp{margin-top:12px;padding-top:11px;border-top:1px solid var(--line);
+     display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.impb{font:inherit;font-size:.78rem;font-weight:600;padding:7px 13px;border-radius:8px;
+      border:1px solid var(--line);background:var(--surface2);color:var(--fg);cursor:pointer;flex:0 0 auto}
+.impb:hover{border-color:var(--accent)}
+.impb input{display:none}
+.imp-h{font-size:.68rem;color:var(--faint);flex:1 1 180px;line-height:1.45}
 .ar-danger.arm{border-color:var(--danger);color:var(--danger);background:var(--danger-bg)}
 /* ── 프리셋 ── */
 .pre-save{display:flex;gap:6px;margin-bottom:12px}
@@ -431,6 +449,10 @@ body.sheet-open{position:fixed;left:0;right:0;width:100%;overflow:hidden}
     <div class="pre-hd">보관한 시즌 — 누르면 파티별 기록이 펼쳐집니다</div>
     <div class="p-list" id="arlist"></div>
     <button class="ar-danger" id="arClear">편성 비우기 — 다음 시즌 시작</button>
+    <div class="imp">
+      <label class="impb">데이터 가져오기<input type="file" id="impFile" accept=".json,application/json"></label>
+      <span class="imp-h">내보낸 JSON 파일을 올리면 파티·프리셋·보관 시즌·명부가 내 영역으로 들어옵니다</span>
+    </div>
   </div>
 </div>
 
@@ -531,8 +553,26 @@ const ELV = {"응결":"--el-glacio","용융":"--el-fusion","전도":"--el-conduc
 const ELORD = ["응결","용융","전도","기류","회절","인멸","복합"];
 const SLOTKEY = ["d","b","h"], SLOTNAME = ["딜러","버퍼","힐러"], SLOTPOS = ["1번","2번","3번"];
 
+/* 명부는 페이지에 내장된 BASE 위에 데이터베이스 추가분(addons)을 얹어 만든다.
+   신규 캐릭이 나와도 파일을 다시 올릴 필요가 없다. */
+const ADMIN_EMAIL = "limsa6991@gmail.com";
+let isAdmin = false;
+let addons = {};            // 이름 -> 캐릭터 정보 (추가 또는 덮어쓰기)
+let pics = {};              // 이름 -> 초상 data URI (내장 사진에 없는 캐릭)
 const C = {};               // name -> {star,el,role,seat,s,r,f,note}
-BASE.forEach(([n,st,el,ro,se,s,r,f,note])=>{ C[n]={star:st,el,role:ro,seat:se,s,r,f,note}; });
+const ORDER = [];           // 명부에 보일 순서
+function rebuildC(){
+  Object.keys(C).forEach(k=>delete C[k]); ORDER.length = 0;
+  BASE.forEach(([n,st,el,ro,se,s,r,f,note])=>{
+    C[n]={star:st,el,role:ro,seat:se,s,r,f,note}; ORDER.push(n); });
+  Object.keys(addons).forEach(n=>{
+    const a = addons[n];
+    if (!C[n]) ORDER.push(n);
+    C[n] = Object.assign({ star:"5성", el:"응결", role:"딜러", seat:"1번",
+                           s:0, r:1, f:1, note:"" }, C[n], a);
+  });
+}
+rebuildC();
 
 /* ── COST ──
    캐릭터: 5성 S0=1 … S6=7 / 4성은 돌파 무관 1 고정
@@ -644,6 +684,14 @@ async function boot(){
     ps.docs.forEach(d => { if (d.exists) parties[d.id] = d.data(); });
     const rs = await db.doc(U+"config/roster").get();
     if (rs.exists) over = Object.assign({}, rs.data());
+    /* 공용 명부·초상 — 여기서 막혀도 내 편성은 열려야 하니 따로 감싼다 */
+    try {
+      const rc = await db.collection("roster").get();
+      rc.docs.forEach(d => { if (d.exists) addons[d.id] = d.data(); });
+      const pc = await db.collection("portraits").get();
+      pc.docs.forEach(d => { if (d.exists && d.data().img) pics[d.id] = d.data().img; });
+      rebuildC();
+    } catch(e){}
     const ar = await db.collection(U+"archives").get();
     ar.docs.forEach(d => { if (d.exists) archives[d.id] = d.data(); });
     const pr = await db.collection(U+"presets").get();
@@ -1066,6 +1114,69 @@ async function saveTheme(){
   try { await db.doc(U+"config/prefs").set({ theme }); } catch(e){}
 }
 
+/* ── 명부에 캐릭터 추가 (관리자) ── */
+async function addRosterChar(name, data){
+  addons[name] = data; rebuildC(); render();
+  if (!db) return;
+  try { await db.doc("roster/" + name).set(data); flash(name + " 추가했습니다"); }
+  catch(e){ flash("관리자만 명부를 고칠 수 있습니다"); }
+}
+
+/* ── 초상 넣기 (관리자) ──
+   고른 이미지를 가운데 정사각으로 잘라 48px webp로 줄인다. 한 장에 1KB 남짓이라
+   데이터베이스에 그대로 넣어도 부담이 없다. */
+function pickPortrait(name){
+  const inp = document.createElement("input");
+  inp.type = "file"; inp.accept = "image/*";
+  inp.addEventListener("change", ()=>{
+    const f = inp.files && inp.files[0]; if (!f) return;
+    const url = URL.createObjectURL(f), img = new Image();
+    img.onload = () => {
+      const side = Math.min(img.width, img.height), S = 48;
+      const cv = document.createElement("canvas"); cv.width = cv.height = S;
+      const cx = cv.getContext("2d"); cx.imageSmoothingQuality = "high";
+      cx.drawImage(img, (img.width-side)/2, (img.height-side)/2, side, side, 0, 0, S, S);
+      URL.revokeObjectURL(url);
+      let uri = cv.toDataURL("image/webp", 0.84);
+      if (uri.indexOf("image/webp") < 0) uri = cv.toDataURL("image/png");
+      savePortrait(name, uri);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); flash("이미지를 읽지 못했습니다"); };
+    img.src = url;
+  });
+  inp.click();
+}
+async function savePortrait(name, uri){
+  pics[name] = uri; render();
+  if (!db) return;
+  try { await db.doc("portraits/" + name).set({ img: uri }); flash(name + " 초상 저장"); }
+  catch(e){ flash("관리자만 초상을 넣을 수 있습니다"); }
+}
+
+/* ── 내 데이터 가져오기 ── */
+async function importData(file){
+  let j;
+  try { j = JSON.parse(await file.text()); }
+  catch(e){ flash("파일을 읽지 못했습니다"); return; }
+  const jobs = [];
+  const put = (coll, id, body) => jobs.push([coll + "/" + id, body]);
+  Object.keys(j.parties  || {}).forEach(k => put(U+"parties",  k, j.parties[k]));
+  Object.keys(j.presets  || {}).forEach(k => put(U+"presets",  k, j.presets[k]));
+  Object.keys(j.archives || {}).forEach(k => put(U+"archives", k, j.archives[k]));
+  if (j.roster) jobs.push([U+"config/roster", j.roster]);
+  if (!jobs.length){ flash("가져올 내용이 없습니다"); return; }
+  flash(jobs.length + "건 가져오는 중…");
+  suspendSync = true; suspendPre = true;
+  let bad = 0;
+  for (const [path, body] of jobs){
+    try { await db.doc(path).set(body); } catch(e){ bad++; }
+  }
+  suspendSync = false; suspendPre = false;
+  parties = {}; presets = {}; archives = {}; over = {};
+  await boot();
+  flash(bad ? (bad + "건 실패") : "가져왔습니다");
+}
+
 async function saveRoster(){
   if (!db) return;
   const body = {};
@@ -1102,10 +1213,10 @@ function cubeFor(el){
   return sv;
 }
 function avatarFor(name, el){
-  const id = PORTRAIT[name];
-  if (!id) return cubeFor(el);
+  const id = PORTRAIT[name], src = pics[name] || (id ? "av/" + id + ".webp" : "");
+  if (!src) return cubeFor(el);
   const im = document.createElement("img");
-  im.className = "av"; im.src = "av/" + id + ".webp";
+  im.className = "av"; im.src = src;
   im.alt = ""; im.loading = "lazy"; im.decoding = "async";
   im.addEventListener("error", () => { im.replaceWith(cubeFor(el)); }, { once:true });
   return im;
@@ -1182,10 +1293,15 @@ function renderBoard(){
       no.addEventListener("click", ()=>openPreset(i));
     }
     card.appendChild(no);
-    if (el){ const chip=document.createElement("span");
+    if (el){
+      // 속성이 떠 있어도 누르면 프리셋으로 이 파티를 갈아끼울 수 있다
+      const chip=document.createElement("button"); chip.type="button";
       chip.className = "el-chip" + (el === "복합" ? " mixed" : "");
       if (el !== "복합") chip.style.cssText = elStyle(el);
-      chip.textContent = el; card.appendChild(chip); }
+      chip.textContent = el;
+      chip.title = "프리셋으로 이 파티 교체";
+      chip.addEventListener("click", ()=>openPreset(i, true));
+      card.appendChild(chip); }
     else {
       // 아직 대표 속성이 없는 자리 — 프리셋 불러오기 버튼으로 쓴다
       const pb=document.createElement("button"); pb.className="pre-btn";
@@ -1274,9 +1390,36 @@ function renderRoster(){
   const tf = totalFat();
   $("rosterSub").textContent = "피로도 " + (tf - placedCount()) + " / " + tf + " 남음";
 
-  const groups = [["피로도 2회", BASE.map(b=>b[0]).filter(n=>fatOf(n)>=2)]];
+  const groups = [["피로도 2회", ORDER.filter(n=>fatOf(n)>=2)]];
+  if (editMode && isAdmin){
+    const f = document.createElement("div"); f.className = "addc";
+    const mk = (tag, cls, ph, opts) => {
+      const e = document.createElement(tag);
+      if (cls) e.className = cls;
+      if (tag === "input") e.placeholder = ph;
+      if (opts) opts.forEach(o=>{ const op=document.createElement("option");
+        op.value=o; op.textContent=o; e.appendChild(op); });
+      f.appendChild(e); return e;
+    };
+    const nm = mk("input","wide","새 캐릭터 이름");
+    const el2 = mk("select",null,null,ELORD);
+    const ro = mk("select",null,null,["딜러","버퍼","힐러"]);
+    const st = mk("select",null,null,["5성","4성"]);
+    const se = mk("input",null,"자리 (예: 1번)");
+    const fa = mk("input",null,"피로도 (1)");
+    const no = mk("input",null,"비고");
+    const bt = mk("button"); bt.textContent = "명부에 추가";
+    bt.addEventListener("click", ()=>{
+      const n = nm.value.trim(); if (!n) return;
+      addRosterChar(n, { star:st.value, el:el2.value, role:ro.value,
+        seat:(se.value.trim()||"1번"), s:0, r:1,
+        f:(parseInt(fa.value,10)||1), note:no.value.trim() });
+      nm.value = ""; se.value = ""; fa.value = ""; no.value = "";
+    });
+    box.appendChild(f);
+  }
   ELORD.forEach(el=>{
-    const list = BASE.map(b=>b[0]).filter(n=>C[n].el===el && fatOf(n)<2);
+    const list = ORDER.filter(n=>C[n] && C[n].el===el && fatOf(n)<2);
     if (list.length) groups.push([el, list]);
   });
 
@@ -1341,6 +1484,13 @@ function renderRoster(){
           saveRoster(); render();
         });
         row.appendChild(ob);
+        if (isAdmin){
+          const pb=document.createElement("button");
+          pb.className="wbtn picb" + (pics[n] ? " has" : "");
+          pb.textContent="사진"; pb.title="초상 넣기 — 이미지를 고르면 48px로 줄여 저장합니다";
+          pb.addEventListener("click", ()=>pickPortrait(n));
+          row.appendChild(pb);
+        }
       } else {
         const s=document.createElement("span"); s.className="sr";
         s.textContent = specOf(n); row.appendChild(s);
@@ -1391,7 +1541,7 @@ function renderPicker(){
   const wantRole = ["딜러","버퍼","힐러"][SLOTKEY.indexOf(pick.slot)];
   list.textContent = "";
 
-  let names = BASE.map(b=>b[0]).filter(n => ownOf(n) || n === cur);
+  let names = ORDER.slice().filter(n => ownOf(n) || n === cur);
   if (q) names = names.filter(n => n.toLowerCase().includes(q) || C[n].note.toLowerCase().includes(q));
   names.sort((a,b)=>{
     const ra = C[a].role===wantRole ? 0 : 1, rb = C[b].role===wantRole ? 0 : 1;
@@ -1443,6 +1593,11 @@ document.addEventListener("keydown", e=>{
   else if (!$("asheet").hidden) closeArchive();
 });
 $("arBtn").addEventListener("click", openArchive);
+$("impFile").addEventListener("change", e=>{
+  const f = e.target.files && e.target.files[0];
+  e.target.value = "";
+  if (f) importData(f);
+});
 $("arClose").addEventListener("click", closeArchive);
 $("aveil").addEventListener("click", closeArchive);
 $("arSave").addEventListener("click", saveArchive);
@@ -1472,10 +1627,11 @@ $("editBtn").addEventListener("click", ()=>{
 render();
 
 /* ───────── 파이어베이스 연결 ───────── */
-window.__fbStart = function(fdb, uid){
+window.__fbStart = function(fdb, uid, email){
   U = "users/" + uid + "/";
+  isAdmin = (email || "").toLowerCase() === ADMIN_EMAIL;
   db = fdb; canWrite = true;
-  parties = {}; over = {}; presets = {}; archives = {};
+  parties = {}; over = {}; presets = {}; archives = {}; addons = {}; pics = {};
   boot();
 };
 window.__fbDenied = function(){
@@ -1544,7 +1700,7 @@ onAuthStateChanged(auth, user => {
     return;
   }
   $$("gateSub").textContent = user.email || "";
-  window.__fbStart(shim, user.uid);
+  window.__fbStart(shim, user.uid, user.email);
 });
 
 const denied = window.__fbDenied;
