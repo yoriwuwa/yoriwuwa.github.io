@@ -1,0 +1,1556 @@
+<title>종말 매트릭스 편성판</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* 레이아웃: 상단 요약 스트립 → 파티 보드(좌) + 피로도 명부(우), 900px 아래 1단 */
+:root{
+  --bg:#161c22; --surface:#1e262d; --surface2:#262f37; --sunk:#171e24;
+  --fg:#dfe7ec; --dim:#98a8b2; --faint:#6a7a85; --line:#2c3740;
+  --accent:#4ad8c8; --accent-soft:#14403a;
+  --gold:#e9bd57; --gold-bg:#3a2f13;
+  --danger:#ff8178; --danger-bg:#3e1d1a;
+  --ok:#63dc9e;
+  --el-glacio:#6cc6ef; --el-fusion:#ff9a63; --el-conducto:#b79bff;
+  --el-aero:#5fd79a; --el-spectro:#f0d063; --el-havoc:#ff8ace;
+  --el-mixed:#c8d3e0;
+  --sans:"IBM Plex Sans KR",system-ui,-apple-system,"Malgun Gothic",sans-serif;
+  --mono:"IBM Plex Mono","IBM Plex Sans KR",ui-monospace,monospace;
+  color-scheme:dark;
+}
+/* 라이트는 내 토글로만 켠다 — data-theme은 호스트가 쓰는 속성이라 건드리지 않는다 */
+body.light{
+  --bg:#f2f5f6; --surface:#ffffff; --surface2:#e9eef0; --sunk:#dde5e8;
+  --fg:#0e1619; --dim:#5c6f77; --faint:#8699a1; --line:#cfd9dd;
+  --accent:#0b7d76; --accent-soft:#d5ecea;
+  --gold:#8a5d00; --gold-bg:#fdf0d2;
+  --danger:#a8241c; --danger-bg:#fadedb;
+  --ok:#1b6b45;
+  --el-glacio:#17648f; --el-fusion:#ad4419; --el-conducto:#63399f;
+  --el-aero:#1b7347; --el-spectro:#7d5f00; --el-havoc:#9c2a6e;
+  --el-mixed:#5b6775;
+  color-scheme:light;
+}
+/* 복합 = 여섯 속성 프리즘. 토큰을 참조하므로 테마를 그대로 따라감 */
+:root{
+  --prism:linear-gradient(100deg,var(--el-glacio),var(--el-fusion),var(--el-conducto),
+          var(--el-aero),var(--el-spectro),var(--el-havoc));
+  --prism-ring:conic-gradient(from 210deg,var(--el-glacio),var(--el-fusion),var(--el-conducto),
+          var(--el-aero),var(--el-spectro),var(--el-havoc),var(--el-glacio));
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);margin:0;
+  padding-inline:16px;padding-block:0 48px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1280px;margin:0 auto}
+h1,h2,h3{margin:0;text-wrap:balance}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+/* ── 헤더 ── */
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px 20px;padding-block:28px 18px}
+.brand h1{font-size:1.45rem;font-weight:700;letter-spacing:-.015em}
+.brand p{margin:4px 0 0;color:var(--dim);font-size:.8rem}
+.ver{font-family:var(--mono);font-size:.7rem;color:var(--accent);
+  border:1px solid var(--accent);border-radius:999px;padding:2px 9px;letter-spacing:.04em}
+.top-sp{flex:1 1 auto}
+.ghost{font-size:.78rem;color:var(--dim);border:1px solid var(--line);
+  border-radius:7px;padding:7px 13px;background:var(--surface)}
+.ghost:hover{border-color:var(--accent);color:var(--accent)}
+.ghost[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+
+/* ── 요약 스트립 ── */
+.sum{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--line);
+  border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:22px}
+.sum div{background:var(--surface);padding:13px 16px;min-width:0}
+.sum dt{font-size:.68rem;color:var(--faint);letter-spacing:.09em;text-transform:uppercase;
+  font-family:var(--mono);margin-bottom:5px}
+.sum dd{margin:0;font-family:var(--mono);font-size:1.3rem;font-weight:600;
+  font-variant-numeric:tabular-nums;letter-spacing:-.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sum .mvp dd{font-size:.95rem;color:var(--gold)}
+.sum .cap dd{font-size:.95rem}
+
+/* ── 본문 2단 ── */
+.cols{display:grid;grid-template-columns:minmax(0,1fr) 332px;gap:22px;align-items:start}
+@media(max-width:980px){.cols{grid-template-columns:1fr}}
+@media(max-width:900px){.sum{grid-template-columns:repeat(3,1fr)}
+  .sum div:last-child{grid-column:span 2}}
+@media(max-width:560px){.sum{grid-template-columns:repeat(2,1fr)}}
+
+.sec-hd{display:flex;align-items:baseline;gap:10px;margin-bottom:11px}
+.sec-hd h2{font-size:.82rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  font-family:var(--mono);color:var(--dim)}
+.sec-hd span{font-size:.72rem;color:var(--faint);font-family:var(--mono)}
+
+/* ── 파티 카드 ── */
+.board{display:flex;flex-direction:column;gap:6px}
+.grid8{display:grid;gap:7px 9px;align-items:center;min-width:0;
+  grid-template-columns:50px 58px minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 92px 54px minmax(0,.9fr);
+  grid-template-areas:"no el d b h sc cz mo" "st st st st st st st st"}
+.bhd{padding:0 11px 5px;font-family:var(--mono);font-size:.66rem;letter-spacing:.05em;
+  color:var(--faint)}
+.bhd span:nth-child(6),.bhd span:nth-child(7){text-align:right}
+.pt{background:var(--surface);border:1px solid var(--line);border-radius:9px;
+  border-left:3px solid var(--line);padding:7px 11px}
+@media(max-width:1180px){
+  .grid8{grid-template-columns:50px 54px repeat(3,minmax(0,1fr)) 84px 52px;
+      grid-template-areas:"no el d b h sc cz" "mo mo mo mo mo mo mo" "st st st st st st st"}
+  .bhd span:nth-child(8){display:none}
+}
+@media(max-width:620px){
+  .grid8{grid-template-columns:repeat(3,minmax(0,1fr));
+      grid-template-areas:"no el sc" "d b h" "mo mo cz" "st st st"}
+  .bhd{display:none}
+  .slot .tag{display:none}
+}
+.pt[data-el="응결"]{border-left-color:var(--el-glacio)}
+.pt[data-el="용융"]{border-left-color:var(--el-fusion)}
+.pt[data-el="전도"]{border-left-color:var(--el-conducto)}
+.pt[data-el="기류"]{border-left-color:var(--el-aero)}
+.pt[data-el="회절"]{border-left-color:var(--el-spectro)}
+.pt[data-el="인멸"]{border-left-color:var(--el-havoc)}
+.pt[data-el="복합"]{border-left-color:var(--el-mixed)}
+.pt.mvp{background:var(--gold-bg);border-color:var(--gold)}
+.pt.bad{border-color:var(--danger)}
+.pt-no{grid-area:no;font-family:var(--mono);font-size:.74rem;font-weight:600;color:var(--faint);
+  letter-spacing:.03em}
+/* ── 순서 편집 ── */
+.board.ordmode .pt{user-select:none}
+/* 손잡이만 터치를 가로챈다 — 나머지 영역은 그대로 스크롤된다 */
+.board.ordmode .pt-no{cursor:grab;touch-action:none;background:var(--sunk);
+  border:1px solid var(--line);border-radius:6px;padding:3px 6px;
+  justify-self:start;width:max-content}
+.board.ordmode .pt.dragging .pt-no{cursor:grabbing}
+.board.ordmode .slot,.board.ordmode .score,.board.ordmode .memo{pointer-events:none;opacity:.72}
+.board.ordmode .pt-no{display:flex;align-items:center;gap:5px}
+.pt-n{font-size:.8rem;color:var(--fg);min-width:1.4em;text-align:right}
+.mv{display:flex;flex-direction:column;gap:2px}
+.mvb{font-size:.46rem;line-height:1;padding:2px 4px;border:1px solid var(--line);
+  border-radius:3px;background:var(--sunk);color:var(--dim)}
+.mvb:hover:not([disabled]){border-color:var(--accent);color:var(--accent)}
+.mvb[disabled]{opacity:.28}
+.pt.dragging{cursor:grabbing;position:relative;z-index:40;opacity:.97;
+  box-shadow:0 10px 28px rgba(0,0,0,.28)}
+.pt.dropabove{box-shadow:0 -3px 0 -1px var(--accent)}
+.pt.dropbelow{box-shadow:0 3px 0 -1px var(--accent)}
+.pre-btn{grid-area:el;font-size:.69rem;font-weight:600;padding:3px 0;border-radius:999px;
+  border:1px dashed var(--line);color:var(--faint);text-align:center;background:none;
+  letter-spacing:-.02em}
+.pre-btn:hover{border-style:solid;border-color:var(--accent);color:var(--accent)}
+.el-chip{grid-area:el;font-size:.69rem;font-weight:600;padding:2px 0;border-radius:999px;
+  border:1px solid currentColor;text-align:center}
+.el-chip.mixed{border-color:var(--el-mixed);color:var(--el-mixed);letter-spacing:.02em}
+@supports (background-clip:text) or (-webkit-background-clip:text){
+  .el-chip.mixed{background:var(--prism);-webkit-background-clip:text;background-clip:text;
+    -webkit-text-fill-color:transparent}
+}
+.dot.mixed{background:var(--prism-ring)!important}
+.score{grid-area:sc;width:100%;background:var(--sunk);border:1px solid var(--line);border-radius:6px;
+  padding:5px 8px;font-family:var(--mono);font-size:.97rem;font-weight:600;text-align:right;
+  color:var(--fg);letter-spacing:.01em;font-variant-numeric:tabular-nums}
+.score::placeholder{color:var(--faint);font-weight:400;font-size:.8rem;letter-spacing:0}
+.score:focus{border-color:var(--accent);background:var(--surface);outline:none}
+.ptcz{grid-area:cz;font-family:var(--mono);font-size:.92rem;font-weight:600;
+  font-variant-numeric:tabular-nums;color:var(--accent);text-align:right;white-space:nowrap}
+.ptcz.zero{color:var(--faint)}
+.slot{display:flex;align-items:center;gap:7px;width:100%;text-align:left;
+  background:var(--surface2);border:1px solid transparent;border-radius:7px;
+  padding:6px 8px;min-width:0}
+.slot.s-d{grid-area:d}.slot.s-b{grid-area:b}.slot.s-h{grid-area:h}
+.slot:hover{border-color:var(--accent)}
+.slot .nm{font-size:.83rem;font-weight:600;flex:1 1 auto;min-width:4.2em;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.slot.empty .nm{color:var(--faint);font-weight:400}
+.slot .tag{font-size:.75rem;font-weight:600;color:var(--dim);flex:0 0 auto;
+  letter-spacing:-.01em;overflow:hidden;white-space:nowrap}
+.av{border-radius:5px;object-fit:cover;display:block;flex:0 0 auto;background:var(--sunk);
+  box-shadow:inset 0 0 0 1px rgba(128,145,155,.25)}
+.cube{display:block;flex:0 0 auto}
+.slot .av,.slot .cube{width:22px;height:22px}
+.r .av,.r .cube{width:22px;height:22px}
+.cand .av,.cand .cube{width:26px;height:26px}
+.memo{grid-area:mo;width:100%;background:var(--sunk);border:1px solid var(--line);
+  border-radius:6px;padding:4px 8px;font-size:.76rem;color:var(--dim)}
+.memo::placeholder{color:var(--faint)}
+.st{grid-area:st;font-size:.7rem;font-family:var(--mono);color:var(--danger);font-weight:600;
+  padding-top:1px}
+
+/* ── 명부 ── */
+.roster{background:var(--surface);border:1px solid var(--line);border-radius:11px;
+  padding:13px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);
+  max-height:calc(100vh - 40px);display:flex;flex-direction:column}
+@media(max-width:980px){.roster{position:static;max-height:none}}
+.r-list{overflow-y:auto;margin:0 -5px;padding:0 5px}
+.r-grp{font-family:var(--mono);font-size:.66rem;letter-spacing:.09em;color:var(--faint);
+  padding:11px 2px 5px;position:sticky;top:0;background:var(--surface);z-index:1}
+.r-grp.first{padding-top:2px}
+.r{display:grid;grid-template-columns:22px minmax(0,1fr) auto auto auto;gap:7px;align-items:center;
+  padding:5px 3px;border-bottom:1px solid var(--line);font-size:.8rem}
+.r .cz{font-family:var(--mono);font-size:.84rem;font-weight:600;font-variant-numeric:tabular-nums;
+  color:var(--accent);min-width:24px;text-align:right}
+.r .cz.zero{color:var(--faint)}
+.wbtn{font-family:var(--mono);font-size:.64rem;border:1px solid var(--line);border-radius:4px;
+  padding:1px 4px;color:var(--dim);background:var(--sunk);white-space:nowrap}
+.wbtn:hover{border-color:var(--accent);color:var(--accent)}
+.ownb{min-width:2.6em;padding:1px 4px}
+.ownb.off{border-color:var(--danger);color:var(--danger);background:var(--danger-bg)}
+.r.unowned{opacity:.38}
+.r.unowned .fat{color:var(--faint)}
+.r.unowned .edit-row,.r.unowned .wbtn,.r.unowned .ownb{opacity:1}
+.r:last-child{border-bottom:none}
+.r .nm{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--fg);font-weight:600}
+.r .sr{font-size:.76rem;font-weight:600;color:var(--dim);letter-spacing:-.01em;
+  white-space:nowrap}
+.r .fat{font-family:var(--mono);font-size:.78rem;font-weight:600;font-variant-numeric:tabular-nums;
+  min-width:56px;text-align:right;color:var(--ok)}
+.r.done{opacity:.42}
+.r.done .fat{color:var(--faint)}
+.r.over .fat{color:var(--danger);font-weight:600}
+.r.two .nm::after{content:"×2";font-family:var(--mono);font-size:.62rem;color:var(--accent);
+  margin-left:5px;vertical-align:1px}
+.r input{width:34px;background:var(--sunk);border:1px solid var(--line);border-radius:4px;
+  padding:1px 4px;font-family:var(--mono);font-size:.69rem;text-align:center}
+.edit-row{display:flex;gap:4px;align-items:center}
+.edit-row input{width:2.45rem;text-align:center}
+/* 속성 묶음마다 어느 칸이 무엇인지 알려주는 머리글 */
+.r.ehd{border-bottom:none;padding:0 3px 3px;pointer-events:none}
+.r.ehd span{font-size:.6rem;letter-spacing:.03em;color:var(--faint);text-align:center}
+.r.ehd .edit-row span{width:2.45rem;display:block}
+
+/* ── 피커 ── */
+.sheet{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center}
+.sheet[hidden]{display:none}
+@media(min-width:700px){.sheet{align-items:center}}
+.veil{position:absolute;inset:0;background:#000;opacity:.5;touch-action:none}
+/* 시트가 떠 있는 동안 뒤 편성판이 같이 밀리지 않게 잠근다 */
+body.sheet-open{position:fixed;left:0;right:0;width:100%;overflow:hidden}
+.panel{position:relative;overscroll-behavior:contain;background:var(--surface);border:1px solid var(--line);
+  border-radius:14px 14px 0 0;width:100%;max-width:560px;max-height:82vh;
+  display:flex;flex-direction:column;padding:15px 15px calc(15px + env(safe-area-inset-bottom,0px))}
+@media(min-width:700px){.panel{border-radius:14px;max-height:76vh}}
+.p-hd{display:flex;align-items:center;gap:10px;margin-bottom:11px}
+.p-hd h3{font-size:.95rem;font-weight:600}
+.p-hd .sp{flex:1}
+.p-x{color:var(--dim);font-size:1.2rem;line-height:1;padding:4px 8px}
+.q{width:100%;background:var(--sunk);border:1px solid var(--line);border-radius:8px;
+  padding:9px 11px;font-size:.88rem;margin-bottom:10px}
+.p-list{overflow-y:auto;overscroll-behavior:contain;display:grid;gap:3px;margin:0 -4px;padding:0 4px}
+/* ── 로그인 게이트 ── */
+.gate{position:fixed;inset:0;z-index:90;background:var(--bg);display:flex;
+  align-items:center;justify-content:center;padding:24px}
+.gate[hidden]{display:none}
+.gate-card{max-width:380px;width:100%;text-align:center}
+.gate-card h1{font-size:1.25rem;font-weight:700;margin-bottom:10px}
+.gate-card p{font-size:.86rem;color:var(--dim);line-height:1.6;margin-bottom:18px}
+.gate-card button{padding:11px 22px;border:1px solid var(--accent);border-radius:9px;
+  background:var(--accent-soft);color:var(--accent);font-size:.9rem;font-weight:600}
+.gate-card button:hover{background:var(--accent);color:var(--bg)}
+.gate-card button[disabled]{opacity:.4}
+.gate-sub{margin-top:16px;font-size:.76rem;color:var(--faint);white-space:pre-line}
+/* ── 시즌 기록 ── */
+.ar-save{display:flex;gap:6px;margin-bottom:12px}
+.ar-save .q{margin-bottom:0;flex:1 1 auto;min-width:0}
+.ar-save button{flex:0 0 auto;padding:0 14px;border:1px solid var(--accent);border-radius:8px;
+  background:var(--accent-soft);color:var(--accent);font-size:.82rem;font-weight:600;white-space:nowrap}
+.ar-save button[disabled]{opacity:.35;border-color:var(--line);background:var(--sunk);color:var(--faint)}
+.ar{width:100%;text-align:left;background:var(--surface2);border-radius:8px;
+  padding:9px 11px;margin-bottom:5px}
+.ar:hover{background:var(--accent-soft)}
+.ar-top{display:flex;align-items:baseline;gap:8px}
+.ar-nm{font-size:.88rem;font-weight:600;color:var(--fg)}
+.ar-dt{font-size:.68rem;color:var(--faint);margin-left:auto;white-space:nowrap}
+.ar-st{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:5px;font-size:.74rem;color:var(--dim)}
+.ar-st b{font-family:var(--mono);font-weight:600;color:var(--fg)}
+.ar-st .ef b{color:var(--accent)}
+.ar-row{display:flex;gap:5px;align-items:stretch;margin-bottom:5px}
+.ar-row .ar{margin-bottom:0}
+.ar-x{flex:0 0 auto;width:34px;border:1px solid var(--line);border-radius:8px;
+  background:var(--sunk);color:var(--faint);font-size:.9rem}
+.ar-x:hover{border-color:var(--danger);color:var(--danger)}
+.ar-det{background:var(--sunk);border-radius:8px;padding:8px 10px;margin:-2px 0 7px}
+.ar-det div{display:grid;grid-template-columns:2.6em minmax(0,1fr) 3.4em 2.6em;gap:8px;
+  font-size:.75rem;padding:3px 0;align-items:center}
+.ar-det .n{font-family:var(--mono);color:var(--faint)}
+.ar-det .m{color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ar-det .s{font-family:var(--mono);text-align:right;color:var(--fg);font-weight:600}
+.ar-det .c{font-family:var(--mono);text-align:right;color:var(--accent);font-weight:600}
+.ar-load{width:100%;margin-top:8px;padding:8px;border:1px solid var(--accent);border-radius:7px;
+  background:var(--accent-soft);color:var(--accent);font-size:.78rem;font-weight:600}
+.ar-load.arm{border-color:var(--danger);color:var(--danger);background:var(--danger-bg)}
+.ar-danger{width:100%;margin-top:10px;padding:9px;border:1px solid var(--line);border-radius:8px;
+  background:var(--sunk);color:var(--dim);font-size:.8rem;font-weight:600}
+.ar-danger.arm{border-color:var(--danger);color:var(--danger);background:var(--danger-bg)}
+/* ── 프리셋 ── */
+.pre-save{display:flex;gap:6px;margin-bottom:12px}
+.pre-save .q{margin-bottom:0;flex:1 1 auto;min-width:0}
+.pre-save button{flex:0 0 auto;padding:0 14px;border:1px solid var(--accent);border-radius:8px;
+  background:var(--accent-soft);color:var(--accent);font-size:.82rem;font-weight:600;white-space:nowrap}
+.pre-save button[disabled]{opacity:.35;border-color:var(--line);background:var(--sunk);color:var(--faint)}
+.pre-hd{font-size:.66rem;letter-spacing:.06em;color:var(--faint);padding:2px 2px 6px}
+.pre-wrap{display:flex;gap:5px;align-items:stretch}
+.pre-mv{flex:0 0 auto;display:flex;flex-direction:column;gap:2px;justify-content:center}
+.pre-mv button{width:22px;flex:1 1 0;min-height:15px;font-size:.5rem;line-height:1;
+  border:1px solid var(--line);border-radius:4px;background:var(--sunk);color:var(--dim)}
+.pre-mv button:hover:not([disabled]){border-color:var(--accent);color:var(--accent)}
+.pre-mv button[disabled]{opacity:.28}
+.pre.used{opacity:.38}
+.pre.info.used{opacity:.62}   /* 관리 화면에서는 이름을 고쳐야 하므로 덜 흐리게 */
+.pre.info{cursor:default}
+.pre-nm{width:100%;min-width:0;background:var(--sunk);border:1px solid var(--line);
+  border-radius:6px;padding:4px 7px;font-size:.86rem;font-weight:600;color:var(--fg)}
+.pre-nm:focus{border-color:var(--accent);outline:none}
+.pre.info:hover{background:var(--surface2)}
+.pre{flex:1 1 auto;min-width:0;display:grid;grid-template-columns:minmax(0,1fr) auto;
+  gap:3px 10px;align-items:center;padding:8px 10px;border-radius:7px;
+  background:var(--surface2);text-align:left}
+.pre:hover{background:var(--accent-soft)}
+.pre .pn{font-size:.86rem;font-weight:600;color:var(--fg);overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.pre .pc{font-family:var(--mono);font-size:.8rem;font-weight:600;color:var(--accent);text-align:right}
+.pre .pm{grid-column:1/3;font-size:.72rem;color:var(--dim);overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.pre-x{flex:0 0 auto;width:34px;border:1px solid var(--line);border-radius:7px;
+  background:var(--sunk);color:var(--faint);font-size:.9rem}
+.pre-x:hover{border-color:var(--danger);color:var(--danger)}
+.pre-none{color:var(--faint);font-size:.82rem;padding:14px 2px;text-align:center}
+.board:not(.ordmode) .pt-no{cursor:pointer;border-radius:6px;padding:3px 5px;margin:-3px -5px}
+.board:not(.ordmode) .pt-no:hover{background:var(--accent-soft);color:var(--accent)}
+.cand{display:grid;grid-template-columns:26px minmax(0,1fr) auto auto;gap:9px;align-items:center;
+  padding:8px 9px;border-radius:7px;text-align:left;background:var(--surface2);width:100%}
+.cand:hover{background:var(--accent-soft)}
+.cand .nm{font-size:.86rem;font-weight:500;color:var(--fg);min-width:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cand .ft{font-size:.68rem;font-family:var(--mono);color:var(--dim);
+  max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cand .rm{font-family:var(--mono);font-size:.68rem;color:var(--ok);flex:0 0 auto}
+.cand.out{opacity:.4}
+.cand.out .rm{color:var(--faint)}
+.cand.cur{outline:1px solid var(--accent)}
+.clr{margin-top:9px;font-size:.78rem;color:var(--danger);border:1px solid var(--line);
+  border-radius:7px;padding:8px;width:100%;text-align:center}
+.clr:hover{border-color:var(--danger)}
+.none{color:var(--faint);font-size:.8rem;padding:18px 4px;text-align:center}
+
+.note{margin-top:20px;color:var(--faint);font-size:.73rem;line-height:1.75}
+.note b{color:var(--dim);font-weight:600}
+.flash{position:fixed;left:50%;transform:translateX(-50%);bottom:22px;z-index:60;
+  background:var(--fg);color:var(--bg);font-size:.78rem;padding:9px 16px;border-radius:999px;
+  box-shadow:0 6px 24px rgba(0,0,0,.26)}
+@media(prefers-reduced-motion:no-preference){.flash{animation:up .22s ease}}
+@keyframes up{from{opacity:0;transform:translate(-50%,8px)}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>종말 매트릭스 편성판</h1>
+      <p>피로도·속성·점수를 한 화면에서 — 입력은 자동 저장됩니다</p>
+    </div>
+    <span class="ver" id="ver">3.7</span>
+    <span class="top-sp"></span>
+    <button class="ghost" id="outBtn" hidden>로그아웃</button>
+    <button class="ghost" id="preBtn">프리셋</button>
+    <button class="ghost" id="arBtn">시즌 기록</button>
+    <button class="ghost" id="thBtn" title="밝기 전환">다크</button>
+    <button class="ghost" id="ordBtn" aria-pressed="false">순서 편집</button>
+    <button class="ghost" id="editBtn" aria-pressed="false">명부 편집</button>
+  </header>
+
+  <dl class="sum">
+    <div><dt>총 점수</dt><dd id="sTotal">—</dd></div>
+    <div><dt>최고 점수</dt><dd id="sBest">—</dd></div>
+    <div class="mvp"><dt>MVP 파티</dt><dd id="sMvp">—</dd></div>
+    <div class="cap"><dt>편성</dt><dd id="sCap">—</dd></div>
+    <div class="cap"><dt>투입 COST</dt><dd id="sCost">—</dd></div>
+  </dl>
+
+  <div class="cols">
+    <section>
+      <div class="sec-hd"><h2>파티</h2><span id="boardSub">3인 고정 편성</span></div>
+      <div class="bhd grid8">
+        <span>파티</span><span>속성</span><span>1번 딜러</span><span>2번 버퍼</span>
+        <span>3번 힐러</span><span>점수</span><span>COST</span><span>메모</span>
+      </div>
+      <div class="board" id="board"></div>
+    </section>
+
+    <aside class="roster">
+      <div class="sec-hd"><h2>피로도 명부</h2><span id="rosterSub"></span></div>
+      <div class="r-list" id="rlist"></div>
+    </aside>
+  </div>
+
+  <p class="note">
+    <b>피로도 2회</b> — 범용 힐러 수수·모니에·파수인·벨리나·복링·설지 고정, 린네는 이번 시즌 한정.<br>
+    <b>자리</b> — 1번 딜러 / 2번 버퍼 / 3번 힐러. 힐러를 2번에 겹쳐 넣어도 됩니다.<br>
+    <b>복합</b> — 2번에 <b>1번 자리</b>를 가진 딜러가 들어가고 1번과 속성이 다르면 대표 속성이 복합(프리즘)으로 바뀝니다. 치샤처럼 딜러지만 자리가 2번뿐이면 투딜로 세지 않습니다. 방랑자는 포지션마다 속성이 달라 상시 복합입니다.<br>
+    <b>시즌 기록</b> — 시즌이 끝나면 <b>시즌 기록</b>에서 통째로 보관합니다. 그때의 COST까지 같이 굳혀 저장하므로
+    나중에 돌파를 더 해도 과거 기록은 흔들리지 않습니다. 보관한 뒤 <b>편성 비우기</b>로 새 시즌을 시작하면
+    프리셋과 명부는 그대로 남고 파티만 비워집니다. 보관한 시즌을 펼치면 <b>불러오기</b>가 있어서
+    언제든 그 시즌 편성으로 되돌릴 수 있습니다 — 저장과 불러오기 모두 편성판 안에서만 이뤄지고,
+    컴퓨터에 파일을 만들지 않습니다.<br>
+    <b>프리셋</b> — <b>파티 N</b> 글자를 누르면 저장과 불러오기가 모두 열리고,
+    빈 파티의 속성 자리에 있는 <b>프리셋</b> 버튼은 불러오기만 합니다. 상단의 <b>프리셋</b> 버튼을 누르면
+    목록만 따로 열려서 <b>▲▼</b>로 순서를 바꾸거나 지울 수 있습니다.
+    이름은 그 화면에서 바로 고칠 수 있고, 이미 같은 구성으로 편성해둔 프리셋은 흐리게 표시됩니다.<br>
+    자리를 비워둔 프리셋도 됩니다 — 3번을 비워두면 1·2번만 채우고 3번은 원래 있던 캐릭을 건드리지 않습니다. 자주 쓰는 3인 조합을 이름 붙여 저장해두고,
+    아무 파티에서나 눌러 한 번에 채울 수 있습니다. 시즌이 바뀌어도 남습니다.<br>
+    <b>순서 편집</b> — 파티를 통째로 옮깁니다. 왼쪽 번호 손잡이를 잡고 끌거나 ▲▼로 한 칸씩 움직이며,
+    딜러·버퍼·힐러와 점수·메모가 함께 따라갑니다. 사이의 파티들은 한 칸씩 밀립니다.<br>
+    <b>보유 여부</b> — 명부 편집에서 이름 줄 끝 <b>보유</b> 버튼을 누르면 미보유로 바뀝니다.
+    미보유 캐릭은 흐려지고 피로도·COST 합계에서 빠지며 선택창에도 뜨지 않습니다. 아직 안 나온 캐릭에 쓰면 됩니다.<br>
+    <b>슬롯 수</b> — 피로도 총합 ÷ 3을 내림한 값. 3명이 모이지 않는 자투리 피로도는 출전할 수 없습니다. 명부에서 피로도를 고치면 자동으로 다시 계산됩니다.<br>
+    <b>COST</b> — 상단의 투입 COST는 캐릭터를 한 번씩만 셉니다. 피로도 2회 캐릭을 두 번 내보내도 뽑기를 두 번 한 건 아니니까요(파티별 COST는 비교를 위해 파티마다 따로 셉니다). 캐릭터는 5성 S0=1부터 S6=7까지, 4성은 돌파와 무관하게 1. 상시 5성(벨리나·앙코·감심·능양·카카루)도 돌파와 무관하게 1 — 뽑다 보면 쌓이는 돌파라 지출이 아닙니다. 방랑자는 표기 없이 1 고정. 무기는 따로 더합니다 —
+    전용 R1~2=1 / R3~4=1.5 / R5=2, 상시 R1~4=0.5 / R5=1, 4성무기는 재련과 무관하게 0.
+    자리·역할에 따른 차등은 두지 않습니다.
+    명부 편집에서 이름 옆 <b>전용·상시·R0</b> 버튼을 누르면 무기 등급이 바뀝니다.<br>
+    <b>투자 표기</b> — <b>풀돌풀재</b>처럼 읽는 그대로입니다. 돌파는 5성만 적습니다(4성은 전원 풀돌). 재련은 1재련을 넘을 때만 적습니다 — 1재련은 무기만 있고 재련은 안 한 기본 상태라 돌파만 씁니다. 상시무기만 등급을 밝히고 전용무기는 생략합니다 — 상시무기를 풀재련한 모르테피는 <b>무풀</b>(무기가 풀), 4성무기를 든 4성 캐릭은 그냥 <b>4성</b>, 상시 5성 풀돌은 <b>상풀</b>입니다 — 둘 다 COST 1입니다.
+  </p>
+</div>
+
+<div class="gate" id="gate">
+  <div class="gate-card">
+    <h1>종말 매트릭스 편성판</h1>
+    <p id="gateMsg">구글 계정으로 로그인하면 내 편성판이 열립니다.</p>
+    <button id="gateIn">구글로 로그인</button>
+    <p class="gate-sub" id="gateSub"></p>
+  </div>
+</div>
+
+<div class="sheet" id="asheet" hidden>
+  <div class="veil" id="aveil"></div>
+  <div class="panel" role="dialog" aria-modal="true" aria-labelledby="arTitle">
+    <div class="p-hd">
+      <h3 id="arTitle">시즌 기록</h3><span class="sp"></span>
+      <button class="p-x" id="arClose" aria-label="닫기">✕</button>
+    </div>
+    <div class="ar-save">
+      <input class="q" id="arName" placeholder="시즌 이름 — 예: 3.7" autocomplete="off">
+      <button id="arSave">이번 시즌 보관</button>
+    </div>
+    <div class="pre-hd">보관한 시즌 — 누르면 파티별 기록이 펼쳐집니다</div>
+    <div class="p-list" id="arlist"></div>
+    <button class="ar-danger" id="arClear">편성 비우기 — 다음 시즌 시작</button>
+  </div>
+</div>
+
+<div class="sheet" id="psheet" hidden>
+  <div class="veil" id="pveil"></div>
+  <div class="panel" role="dialog" aria-modal="true" aria-labelledby="preTitle">
+    <div class="p-hd">
+      <h3 id="preTitle">프리셋</h3><span class="sp"></span>
+      <button class="p-x" id="preClose" aria-label="닫기">✕</button>
+    </div>
+    <div class="pre-save">
+      <input class="q" id="preName" placeholder="프리셋 이름 — 예: 카절복" autocomplete="off">
+      <button id="preSave">저장</button>
+    </div>
+    <div class="pre-hd" id="preHd">저장된 프리셋 — 누르면 이 파티에 넣습니다</div>
+    <div class="p-list" id="prelist"></div>
+  </div>
+</div>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="veil" id="veil"></div>
+  <div class="panel" role="dialog" aria-modal="true" aria-labelledby="pTitle">
+    <div class="p-hd">
+      <h3 id="pTitle">캐릭터 선택</h3><span class="sp"></span>
+      <button class="p-x" id="pClose" aria-label="닫기">✕</button>
+    </div>
+    <input class="q" id="q" placeholder="이름 검색" autocomplete="off">
+    <div class="p-list" id="plist"></div>
+    <button class="clr" id="clrBtn">이 자리 비우기</button>
+  </div>
+</div>
+
+<script>
+// name, star, element, role, seat, 돌파, 재련, 피로도, 비고
+const BASE = [
+["수수","5성","응결","힐러","3번",0,1,2,"힐러(이상)"],
+["모니에","5성","용융","힐러","3번",0,1,2,"힐러(파동/밀집)"],
+["파수인","5성","회절","힐러","3번",0,1,2,"힐러(범용, 크리티컬)"],
+["벨리나","5성","회절","힐러","3번",0,1,2,"힐러(범용)"],
+["복링","4성","전도","힐러","3번",6,1,2,"힐러(공명스킬)"],
+["설지","4성","응결","힐러","3번",6,5,2,"힐러(구버전 딜러용, 힐에코셋 공격력)"],
+["히유키","5성","응결","딜러","1번",0,1,1,"서리 이상딜러"],
+["카를로타","5성","응결","딜러","1번",0,1,1,"공명스킬딜러"],
+["능양","5성","응결","딜러","1번",0,1,1,"공명스킬딜러"],
+["루실라","5성","응결","버퍼","2번",0,1,1,"모드전환(서리/에코)"],
+["절지","5성","응결","버퍼","2번",0,1,1,"버퍼(공명스킬)"],
+["산화","4성","응결","버퍼","2번",6,5,1,"버퍼(일반공격)"],
+["유호","4성","응결","힐러","3번",6,5,1,"힐러"],
+["경연","5성","용융","딜러","1번",0,1,1,"강공격딜러(HP+공격력 혼합)"],
+["에이메스","5성","용융","딜러","1번",0,1,1,"공명해방딜러(파동/이상)"],
+["갈브레나","5성","용융","딜러","1번",0,1,1,"강공격딜러"],
+["장리","5성","용융","딜러","1·2번",0,1,1,"공명스킬딜러"],
+["앙코","5성","용융","딜러","1번",0,1,1,"일반공격딜러"],
+["치샤","4성","용융","딜러","2번",6,5,1,"공명해방딜러"],
+["데니아","5성","용융","버퍼","1번",0,1,1,"모드전환(불꽃/밀집)"],
+["루파","5성","용융","버퍼","3번",0,1,1,"버퍼(일반공격)"],
+["브렌트","5성","용융","버퍼","2번",0,1,1,"버퍼(공명스킬)"],
+["모르테피","4성","용융","버퍼","2번",6,5,1,"버퍼(강공격)"],
+["여우의 별자리","5성","전도","딜러","1번",0,1,1,"전자(이상)딜러 · 합일 모드"],
+["아우구스타","5성","전도","딜러","1번",0,1,1,"강공격딜러"],
+["카카루","5성","전도","딜러","1번",0,1,1,"공명해방딜러"],
+["상리요","5성","전도","딜러","1번",0,1,1,"공명해방딜러"],
+["쇄명","5성","전도","버퍼","2번",0,1,1,"합일 서브딜러/버퍼"],
+["레베카","5성","전도","버퍼","2번",0,1,1,"버퍼(해킹)"],
+["루미","4성","전도","버퍼","2번",0,1,1,"버퍼(공명스킬)"],
+["음림","5성","전도","버퍼","2번",0,1,1,"버퍼(공명해방)"],
+["연무","4성","전도","버퍼","3번",6,5,1,"버퍼(힐에코셋 활용)"],
+["청초","5성","기류","딜러","1번",0,1,1,"밀집딜러"],
+["시그리카","5성","기류","딜러","1번",0,1,1,"에코딜러"],
+["카르티시아","5성","기류","딜러","1번",0,1,1,"풍식(이상)딜러"],
+["기염","5성","기류","딜러","1번",0,1,1,"강공격딜러"],
+["구원","5성","기류","버퍼","2번",0,1,1,"버퍼(에코)"],
+["유노","5성","기류","버퍼","2번",0,1,1,"버퍼(강공격)"],
+["샤콘","5성","기류","버퍼","2번",0,1,1,"버퍼(풍식)"],
+["감심","5성","기류","버퍼","2번",0,1,1,"버퍼(공명해방)"],
+["양양","4성","기류","버퍼","2·3번",6,5,1,"버퍼(견인, 공효회복)"],
+["알토","4성","기류","버퍼","2번",6,5,1,"버퍼(기류)"],
+["방랑자","5성","복합","힐러","3번",6,5,1,"포지션에 따라 속성 변경 · 전체에서 1회만"],
+["루시","5성","회절","딜러","1번",0,1,1,"강공격딜러(해킹)"],
+["루크","5성","회절","딜러","1번",0,1,1,"일반공격딜러(밀집)"],
+["젠니","5성","회절","딜러","1번",0,1,1,"강공격딜러(광학)"],
+["금희","5성","회절","딜러","1번",0,1,1,"공명스킬딜러"],
+["린네","5성","회절","버퍼","2번",0,1,2,"모드전환(파동/밀집) · 시즌 한정 2회"],
+["페비","5성","회절","버퍼","2번",0,1,1,"버퍼(광학)"],
+["양양(현령)","5성","인멸","딜러","1번",0,1,1,"강공격딜러(암흑)"],
+["플로로","5성","인멸","딜러","1번",0,1,1,"공명스킬딜러(에코)"],
+["카멜리아","5성","인멸","딜러","1번",0,1,1,"일반공격딜러"],
+["칸타렐라","5성","인멸","버퍼","2번",0,1,1,"버퍼(공명스킬/에코)"],
+["로코코","5성","인멸","버퍼","2번",0,1,1,"버퍼(일반공격)"],
+["단근","4성","인멸","버퍼","2번",6,5,1,"버퍼(인멸피해)"],
+["도기","4성","인멸","버퍼","2번",6,5,1,"버퍼(공명스킬)"],
+["치사","5성","인멸","힐러","3·2번",0,1,1,"힐러(이상)"]
+];
+const FIXED2 = new Set(["수수","모니에","파수인","벨리나","복링","설지"]);
+const ELV = {"응결":"--el-glacio","용융":"--el-fusion","전도":"--el-conducto",
+             "기류":"--el-aero","회절":"--el-spectro","인멸":"--el-havoc",
+             "복합":"--el-mixed"};
+const ELORD = ["응결","용융","전도","기류","회절","인멸","복합"];
+const SLOTKEY = ["d","b","h"], SLOTNAME = ["딜러","버퍼","힐러"], SLOTPOS = ["1번","2번","3번"];
+
+const C = {};               // name -> {star,el,role,seat,s,r,f,note}
+BASE.forEach(([n,st,el,ro,se,s,r,f,note])=>{ C[n]={star:st,el,role:ro,seat:se,s,r,f,note}; });
+
+/* ── COST ──
+   캐릭터: 5성 S0=1 … S6=7 / 4성은 돌파 무관 1 고정
+   무기  : 전용 R1~2=1, R3~4=1.5, R5=2 · 상시 R1~4=0.5, R5=1 · 4성무기=0  */
+const WEPS = ["전용","상시","4성"];
+// 자리·역할 구분 없이 동일 적용 (뽑기에 드는 실제 비용 기준)
+const WEPCOST = {
+  "전용":{1:1, 2:1, 3:1.5, 4:1.5, 5:2},
+  "상시":{1:.5, 2:.5, 3:.5, 4:.5, 5:1},
+  "4성" :{1:0, 2:0, 3:0, 4:0, 5:0}
+};
+const WEPSHORT = {"전용":"전용","상시":"상시","4성":"R0"};
+// 기본값 — 5성(픽업) 전용무기 / 4성 4성무기. 아래는 예외만.
+const WEP0 = {
+  "상리요":"전용",
+  // 상시 5성 + 방랑자 : 픽업이 아니라 전무 없음
+  "벨리나":"4성", "앙코":"4성", "감심":"4성", "능양":"4성", "카카루":"4성", "방랑자":"4성"
+};
+
+let parties = {};           // "1" -> {d,b,h,score,memo}
+let over = {};              // name -> {s,r,f}
+/* 저장 경로 — 로그인한 사람의 영역. 보안 규칙이 남의 영역 접근을 막는다.
+   명부 기본값과 캐릭터 사진은 페이지에 들어 있어 모두가 공유한다. */
+let U = "";
+let db = null, canWrite = true, editMode = false;
+let ordMode = false, suspendSync = false, drag = null;
+let archives = {}, arOpen = null, arArmed = false, arLoadArm = null;   // 보관한 시즌 / 펼친 항목 / 비우기 확인단계
+let presets = {}, preFor = null, preMode = "party", suspendPre = false;   // 프리셋 저장소 / 지금 프리셋을 넣을 파티 번호
+let pick = null;            // {pi, slot}
+
+const $ = id => document.getElementById(id);
+/* 보유 여부 — 미보유 캐릭은 피로도·COST 합계에서 빠지고 선택창에도 안 뜬다 */
+const ownOf = n => !(over[n] && over[n].o === false);
+const fatOf = n => { const o = over[n]; return (o && o.f != null) ? o.f : (C[n] ? C[n].f : 1); };
+const srOf  = n => { const o = over[n] || {}; const b = C[n];
+  return { s: o.s != null ? o.s : b.s, r: o.r != null ? o.r : b.r }; };
+const P = i => parties[String(i)] || {};
+const wepOf = n => {
+  const o = over[n];
+  if (o && o.w) return o.w;
+  if (WEP0[n]) return WEP0[n];
+  return C[n] && C[n].star === "4성" ? "4성" : "전용";
+};
+/* 상시 배너 5성 — 뽑다 보면 저절로 쌓이는 돌파라 실제 지출이 아니다.
+   돌파가 몇이든 캐릭터 COST는 1로 고정. 무기는 별개로 더한다. */
+const STD5 = new Set(["벨리나","앙코","감심","능양","카카루"]);
+const charCost = n => !C[n] ? 0
+  : STD5.has(n) ? 1
+  : (C[n].star === "4성" ? 1 : srOf(n).s + 1);
+const wepCost  = n => !C[n] ? 0 : (WEPCOST[wepOf(n)] || WEPCOST["상시"])[srOf(n).r] || 0;
+/* 방랑자는 뽑기로 얻는 캐릭이 아니라 투자라는 개념이 없다.
+   돌파·재련 표기를 빼고 COST는 1로 고정한다. */
+const FLATCOST = { "방랑자": 1 };
+const unitCost = n => !C[n] ? 0
+  : (FLATCOST[n] != null ? FLATCOST[n] : charCost(n) + wepCost(n));
+const partyCost = p => SLOTKEY.reduce((a,k)=> a + (p[k] ? unitCost(p[k]) : 0), 0);
+const num = v => Number.isInteger(v) ? String(v) : v.toFixed(1);
+/* 투자 표기 — 읽어서 바로 이해되게.
+   · 돌파는 5성만 쓴다. 4성은 어차피 전원 풀돌이라 정보가 없다.
+   · 재련은 무기가 있을 때만. 4성무기는 사실상 무기가 없는 것과 같아 R0.
+   · 상시무기만 등급을 밝힌다. 전용무기는 기본값이라 생략.
+   예) 히유키 풀돌풀재 · 루시 3돌1재 · 벨리나 풀돌R0 · 모르테피 상시풀재 · 복링 (없음) */
+const specOf = n => {
+  const c = C[n]; if (!c) return "";
+  if (FLATCOST[n] != null) return "";
+  const sr = srOf(n), w = wepOf(n);
+  // 상시 5성 — 공짜로 쌓인 돌파라 4성과 나란히 한 단어로 적는다
+  if (STD5.has(n) && w === "4성")
+    return sr.s === 6 ? "상풀" : (sr.s ? "상시" + sr.s + "돌" : "상시");
+  // 가장 흔한 두 조합은 함축한다 — 명전(명함+전용무기), 풀풀(풀돌+풀재련)
+  if (c.star === "5성" && w === "전용"){
+    if (sr.s === 0 && sr.r === 1) return "명전";
+    if (sr.s === 6 && sr.r === 5) return "풀풀";
+    // 1재련은 기본값(=무기만 있고 재련은 안 함)이라 돌파만 적는다
+    if (sr.r === 1) return (sr.s === 6 ? "풀돌" : sr.s + "돌");
+  }
+  let out = c.star === "5성" ? (sr.s === 6 ? "풀돌" : sr.s + "돌") : "";
+  if (w === "4성") out += (c.star === "5성" ? "" : "4성");
+  else if (w === "상시") out += (sr.r === 5 ? "무풀" : "상시" + sr.r + "재");
+  else out += (sr.r === 5 ? "풀재" : sr.r + "재");
+  return out;
+};
+
+function totalFat(){ return Object.keys(C).reduce((a,n)=>a+(ownOf(n)?fatOf(n):0),0); }
+// 파티는 3인 고정이라 3명이 모이지 않는 자투리 피로도는 쓸 수 없다 → 내림
+function maxParties(){ return Math.max(1, Math.floor(totalFat()/3)); }
+function usedOf(name){
+  let k=0;
+  for (const id in parties){ const p=parties[id];
+    for (const s of SLOTKEY) if (p[s]===name) k++; }
+  return k;
+}
+function placedCount(){
+  let k=0; for (const id in parties){ const p=parties[id];
+    for (const s of SLOTKEY) if (p[s]) k++; } return k;
+}
+function fullTeams(){
+  let k=0; const m=maxParties();
+  for (let i=1;i<=m;i++){ const p=P(i); if (p.d&&p.b&&p.h) k++; } return k;
+}
+
+/* ───────── 저장 ───────── */
+/* 로그인 성공 후 파이어베이스가 불러준다 */
+async function boot(){
+  if (!db){ render(); return; }
+  let denied = false;
+  try {
+    const ps = await db.collection(U+"parties").get();
+    ps.docs.forEach(d => { if (d.exists) parties[d.id] = d.data(); });
+    const rs = await db.doc(U+"config/roster").get();
+    if (rs.exists) over = Object.assign({}, rs.data());
+    const ar = await db.collection(U+"archives").get();
+    ar.docs.forEach(d => { if (d.exists) archives[d.id] = d.data(); });
+    const pr = await db.collection(U+"presets").get();
+    pr.docs.forEach(d => { if (d.exists) presets[d.id] = d.data(); });
+    const pf = await db.doc(U+"config/prefs").get();
+    if (pf.exists && pf.data().theme === "light") applyTheme("light");
+  } catch(e){
+    // 승인 목록에 없으면 읽기부터 막힌다
+    if (String(e && e.code || e).indexOf("permission") >= 0) denied = true;
+  }
+  if (denied){ window.__fbDenied && window.__fbDenied(); return; }
+  $("gate").hidden = true; $("outBtn").hidden = false;
+  render();
+  try {
+    db.collection(U+"parties").onSnapshot(sn => {
+      if (suspendSync) return;
+      const next = {};
+      sn.docs.forEach(d => { if (d.exists) next[d.id] = d.data(); });
+      parties = next; render();
+    }, ()=>{});
+    db.collection(U+"presets").onSnapshot(sn => {
+      if (suspendPre) return;
+      const next = {};
+      sn.docs.forEach(d => { if (d.exists) next[d.id] = d.data(); });
+      presets = next; if (preFor != null) renderPresets();
+    }, ()=>{});
+    db.doc(U+"config/roster").onSnapshot(sn => {
+      over = sn.exists ? Object.assign({}, sn.data()) : {};
+      render();
+    }, ()=>{});
+  } catch(e){}
+}
+let flashT;
+function flash(msg){
+  let el = document.querySelector(".flash");
+  if (!el){ el = document.createElement("div"); el.className="flash"; document.body.appendChild(el); }
+  el.textContent = msg; clearTimeout(flashT);
+  flashT = setTimeout(()=>el.remove(), 2200);
+}
+async function saveParty(i){
+  const id = String(i), p = parties[id] || {};
+  if (!db) return;
+  try { await db.doc(U+"parties/"+id).set(p); }
+  catch(e){ flash("저장하지 못했습니다"); }
+}
+/* 파티를 통째로 다른 자리로 옮긴다. 사이의 파티들은 한 칸씩 밀린다. */
+async function moveParty(from, to){
+  const m = maxParties();
+  to = Math.max(1, Math.min(m, to));
+  if (from === to) return;
+  const arr = [];
+  for (let i=1;i<=m;i++) arr.push(parties[String(i)] || null);
+  const [mv] = arr.splice(from-1, 1);
+  arr.splice(to-1, 0, mv);
+  const changed = [];
+  for (let i=1;i<=m;i++){
+    const id = String(i), nv = arr[i-1] || null, ov = parties[id] || null;
+    if (JSON.stringify(nv) !== JSON.stringify(ov)){
+      if (nv) parties[id] = nv; else delete parties[id];
+      changed.push(i);
+    }
+  }
+  if (!changed.length) return;
+  render();
+  if (!db) return;
+  suspendSync = true;
+  if (changed.length > 4) flash("순서 저장 중…");
+  let bad = false;
+  for (const i of changed){
+    try { await db.doc(U+"parties/"+String(i)).set(parties[String(i)] || {}); }
+    catch(e){ bad = true; }
+  }
+  suspendSync = false;
+  flash(bad ? "일부를 저장하지 못했습니다" : "순서를 저장했습니다");
+}
+
+function ptDown(e, i, card, handle){
+  if (!ordMode || (e.pointerType === "mouse" && e.button !== 0)) return;
+  const rects = [...document.querySelectorAll(".board .pt")]
+                  .map(el => ({ el, r: el.getBoundingClientRect() }));
+  drag = { from:i, card, y0:e.clientY, rects, to:i, moved:false };
+  e.preventDefault();
+  try { handle.setPointerCapture(e.pointerId); } catch(err){}
+}
+function ptMove(e){
+  if (!drag) return;
+  const dy = e.clientY - drag.y0;
+  if (!drag.moved && Math.abs(dy) < 5) return;
+  drag.moved = true;
+  drag.card.classList.add("dragging");
+  drag.card.style.transform = "translateY(" + dy + "px)";
+  let passed = 0;
+  drag.rects.forEach(o => { if (e.clientY > o.r.top + o.r.height/2) passed++; });
+  let to = (passed < drag.from) ? passed + 1 : passed;
+  to = Math.max(1, Math.min(drag.rects.length, to));
+  drag.to = to;
+  drag.rects.forEach(o => o.el.classList.remove("dropabove","dropbelow"));
+  const t = drag.rects[to-1];
+  if (t && t.el !== drag.card) t.el.classList.add(to < drag.from ? "dropabove" : "dropbelow");
+}
+function ptUp(){
+  if (!drag) return;
+  const d = drag; drag = null;
+  d.card.classList.remove("dragging"); d.card.style.transform = "";
+  d.rects.forEach(o => o.el.classList.remove("dropabove","dropbelow"));
+  if (d.moved && d.to !== d.from) moveParty(d.from, d.to);
+}
+
+/* ───────── 시즌 기록 ─────────
+   시즌이 끝나면 편성판을 통째로 찍어 보관한다. COST는 그 시점 값으로 굳혀서 저장해야
+   나중에 돌파를 더 해도 과거 기록이 흔들리지 않는다. */
+function snapshot(){
+  const m = maxParties(), out = {}, seen = new Set();
+  let total = 0, cost = 0, teams = 0, best = 0, bestI = 0;
+  for (let i = 1; i <= m; i++){
+    const p = P(i), names = SLOTKEY.map(k=>p[k]).filter(Boolean);
+    const sc = p.score || 0;
+    if (!names.length && !sc) continue;
+    const c = partyCost(p);
+    const row = { c };
+    SLOTKEY.forEach(k=>{ if (p[k]) row[k] = p[k]; });
+    if (p.score) row.score = p.score;
+    if (p.memo) row.memo = p.memo;
+    out[String(i)] = row;
+    names.forEach(nm=>seen.add(nm));
+    total += sc; if (names.length) teams++;
+    if (sc > best){ best = sc; bestI = i; }
+  }
+  seen.forEach(nm=>{ cost += unitCost(nm); });
+  return { parties: out, total, cost, teams, best, bestI };
+}
+const arOrder = () => Object.keys(archives).sort((a,b)=>(archives[b].at||0)-(archives[a].at||0));
+const arDate = t => { const d = new Date(t||0);
+  return d.getFullYear()+"."+String(d.getMonth()+1).padStart(2,"0")+"."+String(d.getDate()).padStart(2,"0"); };
+
+function openArchive(){
+  arOpen = null; arArmed = false;
+  const snap = snapshot();
+  $("arName").value = ($("ver") && $("ver").textContent.trim()) || "";
+  $("arSave").disabled = !snap.teams;
+  $("asheet").hidden = false; lockScroll();
+  renderArchives();
+}
+function closeArchive(){ $("asheet").hidden = true; lockScroll(); }
+
+function renderArchives(){
+  const list = $("arlist"); list.textContent = "";
+  const cb = $("arClear");
+  cb.className = "ar-danger" + (arArmed ? " arm" : "");
+  cb.textContent = arArmed ? "정말 비울까요? 한 번 더 누르면 지웁니다"
+                           : "편성 비우기 — 다음 시즌 시작";
+  const ids = arOrder();
+  if (!ids.length){
+    const e = document.createElement("div"); e.className = "pre-none";
+    e.textContent = "보관한 시즌이 없습니다";
+    list.appendChild(e); return;
+  }
+  ids.forEach(id=>{
+    const a = archives[id];
+    const row = document.createElement("div"); row.className = "ar-row";
+    const b = document.createElement("button"); b.className = "ar";
+    const top = document.createElement("div"); top.className = "ar-top";
+    const nm = document.createElement("span"); nm.className = "ar-nm";
+    nm.textContent = a.name || "이름 없음"; top.appendChild(nm);
+    const dt = document.createElement("span"); dt.className = "ar-dt";
+    dt.textContent = arDate(a.at); top.appendChild(dt);
+    b.appendChild(top);
+    const st = document.createElement("div"); st.className = "ar-st";
+    const add = (lab, val, cls) => { const e=document.createElement("span");
+      if (cls) e.className = cls;
+      e.textContent = lab + " "; const v=document.createElement("b"); v.textContent = val;
+      e.appendChild(v); st.appendChild(e); };
+    add("총점", (a.total||0).toLocaleString("en-US"));
+    add("COST", String(a.cost||0));
+    add("효율", a.cost ? Math.round(a.total/a.cost).toLocaleString("en-US") : "—", "ef");
+    add("편성", (a.teams||0)+"팀");
+    b.appendChild(st);
+    b.addEventListener("click", ()=>{ arOpen = (arOpen === id) ? null : id;
+      arLoadArm = null; renderArchives(); });
+    const x = document.createElement("button"); x.className = "ar-x";
+    x.textContent = "✕"; x.title = "이 기록 삭제";
+    x.addEventListener("click", ()=>removeArchive(id));
+    row.appendChild(b); row.appendChild(x); list.appendChild(row);
+
+    if (arOpen === id){
+      const det = document.createElement("div"); det.className = "ar-det";
+      Object.keys(a.parties||{}).sort((x,y)=>(+x)-(+y)).forEach(k=>{
+        const pr = a.parties[k], line = document.createElement("div");
+        const mk = (cls, txt) => { const e=document.createElement("span"); e.className=cls;
+          e.textContent = txt; line.appendChild(e); };
+        mk("n", k);
+        mk("m", SLOTKEY.map(sk=>pr[sk]).filter(Boolean).join(" · ") || "—");
+        mk("s", pr.score ? pr.score.toLocaleString("en-US") : "—");
+        mk("c", num(pr.c || 0));
+        det.appendChild(line);
+      });
+      const lb = document.createElement("button");
+      lb.className = "ar-load" + (arLoadArm === id ? " arm" : "");
+      lb.textContent = arLoadArm === id
+        ? "지금 편성을 덮어씁니다 — 한 번 더 누르면 불러옵니다"
+        : "이 시즌을 편성판에 불러오기";
+      lb.addEventListener("click", ()=>{
+        if (arLoadArm !== id){ arLoadArm = id; renderArchives(); return; }
+        loadArchive(id);
+      });
+      det.appendChild(lb);
+      list.appendChild(det);
+    }
+  });
+}
+
+async function saveArchive(){
+  const snap = snapshot();
+  if (!snap.teams) return;
+  const id = "ar" + Date.now().toString(36);
+  const body = Object.assign({ name: ($("arName").value.trim() || arDate(Date.now())),
+                               at: Date.now() }, snap);
+  archives[id] = body; arOpen = id; renderArchives();
+  if (!db) return;
+  try { await db.doc(U+"archives/" + id).set(body); flash("시즌을 보관했습니다"); }
+  catch(e){ flash("저장하지 못했습니다"); }
+}
+async function removeArchive(id){
+  delete archives[id]; if (arOpen === id) arOpen = null; renderArchives();
+  if (!db) return;
+  try { await db.doc(U+"archives/" + id).delete(); } catch(e){}
+}
+/* 보관한 시즌을 편성판으로 되돌린다. COST는 지금 명부 기준으로 다시 계산된다. */
+async function loadArchive(id){
+  const a = archives[id]; if (!a) return;
+  arLoadArm = null;
+  const touch = new Set(), m = maxParties();
+  for (let i = 1; i <= m; i++) if (Object.keys(P(i)).length) touch.add(String(i));
+  const next = {};
+  Object.keys(a.parties || {}).forEach(k=>{
+    const src = a.parties[k], row = {};
+    SLOTKEY.forEach(sk=>{ if (src[sk]) row[sk] = src[sk]; });
+    if (src.score) row.score = src.score;
+    if (src.memo) row.memo = src.memo;
+    next[k] = row; touch.add(k);
+  });
+  parties = next;
+  closeArchive(); render();
+  if (!db) return;
+  suspendSync = true;
+  for (const k of touch){ try { await db.doc(U+"parties/" + k).set(parties[k] || {}); } catch(e){} }
+  suspendSync = false;
+  flash("「" + (a.name || "") + "」 불러왔습니다");
+}
+
+async function clearBoard(){
+  if (!arArmed){ arArmed = true; renderArchives(); return; }
+  arArmed = false;
+  const m = maxParties(), ids = [];
+  for (let i = 1; i <= m; i++){ if (Object.keys(P(i)).length){ delete parties[String(i)]; ids.push(i); } }
+  closeArchive(); render();
+  if (!db) return;
+  suspendSync = true;
+  for (const i of ids){ try { await db.doc(U+"parties/" + String(i)).set({}); } catch(e){} }
+  suspendSync = false;
+  flash("편성을 비웠습니다");
+}
+
+/* ───────── 프리셋 ─────────
+   자주 쓰는 3인 조합을 저장해두고 아무 파티에나 한 번에 넣는다. */
+const preOrder = () => Object.keys(presets).sort((a,b)=>{
+  const A = presets[a], B = presets[b];
+  return (A.ord != null ? A.ord : (A.at||0)) - (B.ord != null ? B.ord : (B.at||0));
+});
+/* 이미 같은 구성으로 편성된 파티가 있으면 쓴 것으로 본다 */
+const preUsed = pr => {
+  const ks = SLOTKEY.filter(k => pr[k]);
+  if (!ks.length) return false;
+  const m = maxParties();
+  for (let i = 1; i <= m; i++){
+    const p = P(i);
+    if (ks.every(k => p[k] === pr[k])) return true;
+  }
+  return false;
+};
+async function renamePreset(id, name){
+  const nm = (name||"").trim();
+  if (!nm || !presets[id] || presets[id].name === nm) return;
+  presets[id] = Object.assign({}, presets[id], { name: nm });
+  if (!db) return;
+  suspendPre = true;
+  try { await db.doc(U+"presets/"+id).set(presets[id]); } catch(e){}
+  suspendPre = false;
+}
+async function movePreset(id, dir){
+  const ids = preOrder(), i = ids.indexOf(id), j = i + dir;
+  if (i < 0 || j < 0 || j >= ids.length) return;
+  ids.splice(i,1); ids.splice(j,0,id);
+  const writes = [];
+  ids.forEach((k,n)=>{ if (presets[k].ord !== n){
+    presets[k] = Object.assign({}, presets[k], { ord:n }); writes.push(k); } });
+  renderPresets();
+  if (!db) return;
+  suspendPre = true;
+  for (const k of writes){ try { await db.doc(U+"presets/"+k).set(presets[k]); } catch(e){} }
+  suspendPre = false;
+}
+const preCost = pr => SLOTKEY.reduce((a,k)=> a + (pr[k] ? unitCost(pr[k]) : 0), 0);
+const preNames = pr => SLOTKEY.map(k=>pr[k]).filter(Boolean);
+
+function openPreset(pi, loadOnly){
+  preFor = pi;
+  preMode = (pi == null) ? "manage" : (loadOnly ? "load" : "party");
+  const p = (pi == null) ? {} : P(pi), has = preNames(p);
+  $("preTitle").textContent = (pi == null) ? "프리셋"
+    : "파티 " + pi + (loadOnly ? " · 프리셋 불러오기" : " · 프리셋");
+  $("preName").value = has.length ? has.join("·") : "";
+  $("preSave").disabled = !has.length;
+  document.querySelector(".pre-save").hidden = (preMode !== "party");
+  $("preHd").textContent = (preMode === "manage")
+    ? "순서를 바꾸거나 지울 수 있습니다 — 흐린 것은 이미 편성된 조합"
+    : "저장된 프리셋 — 누르면 이 파티에 넣습니다";
+  $("psheet").hidden = false; lockScroll();
+  renderPresets();
+}
+function closePreset(){ preFor = null; $("psheet").hidden = true; lockScroll(); }
+
+const PRE_VISIBLE = 10;   // 한 번에 보이는 프리셋 수 — 넘으면 스크롤
+function renderPresets(){
+  const list = $("prelist"); list.textContent = ""; list.style.maxHeight = "";
+  const ids = preOrder();
+  if (!ids.length){
+    const e = document.createElement("div"); e.className = "pre-none";
+    e.textContent = "아직 저장한 프리셋이 없습니다";
+    list.appendChild(e); return;
+  }
+  ids.forEach(id=>{
+    const pr = presets[id], names = preNames(pr);
+    const wrap = document.createElement("div"); wrap.className = "pre-wrap";
+    const mv = document.createElement("span"); mv.className = "pre-mv";
+    [["▲",-1,ids.indexOf(id)>0],["▼",1,ids.indexOf(id)<ids.length-1]].forEach(([t,d,ok])=>{
+      const e = document.createElement("button"); e.textContent = t;
+      e.title = d < 0 ? "위로" : "아래로";
+      if (!ok) e.disabled = true;
+      e.addEventListener("click", ()=>movePreset(id, d));
+      mv.appendChild(e);
+    });
+    wrap.appendChild(mv);
+    const manage = preMode === "manage";
+    const b = document.createElement(manage ? "div" : "button");
+    b.className = "pre" + (preUsed(pr) ? " used" : "") + (manage ? " info" : "");
+    if (manage){
+      const inp = document.createElement("input"); inp.className = "pre-nm";
+      inp.value = pr.name || names.join("·"); inp.title = "이름 수정";
+      inp.addEventListener("change", ()=>renamePreset(id, inp.value));
+      inp.addEventListener("keydown", e=>{ if (e.key === "Enter") inp.blur(); });
+      b.appendChild(inp);
+    } else {
+      const n = document.createElement("span"); n.className = "pn";
+      n.textContent = pr.name || names.join("·"); b.appendChild(n);
+    }
+    const c = document.createElement("span"); c.className = "pc";
+    c.textContent = num(preCost(pr)); c.title = "COST"; b.appendChild(c);
+    const m = document.createElement("span"); m.className = "pm";
+    m.textContent = SLOTKEY.map((k,i)=> SLOTPOS[i].replace("번","") + " " + (pr[k] || "—"))
+                      .join("  ·  ");
+    b.appendChild(m);
+    if (!manage) b.addEventListener("click", ()=>applyPreset(id));
+    const x = document.createElement("button"); x.className = "pre-x";
+    x.textContent = "✕"; x.title = "프리셋 삭제";
+    x.addEventListener("click", ()=>removePreset(id));
+    wrap.appendChild(b); wrap.appendChild(x); list.appendChild(wrap);
+  });
+  // 10개를 넘으면 딱 10줄 높이로 잘라 스크롤시킨다. 모드마다 줄 높이가 달라 실측한다.
+  if (ids.length > PRE_VISIBLE){
+    requestAnimationFrame(()=>{
+      const rows = list.querySelectorAll(".pre-wrap");
+      if (rows.length <= PRE_VISIBLE) return;
+      const h = rows[0].getBoundingClientRect().height;
+      const gap = parseFloat(getComputedStyle(list).rowGap) || 0;
+      list.style.maxHeight = Math.round(h * PRE_VISIBLE + gap * (PRE_VISIBLE - 1)) + "px";
+    });
+  }
+}
+
+async function applyPreset(id){
+  const pr = presets[id]; if (!pr || preFor == null) return;
+  const i = preFor, key = String(i);
+  parties[key] = Object.assign({}, parties[key]);
+  // 프리셋이 지정한 자리만 채운다. 비워둔 자리는 원래 있던 캐릭을 그대로 둔다.
+  SLOTKEY.forEach(k=>{ if (pr[k]) parties[key][k] = pr[k]; });
+  closePreset(); render(); await saveParty(i);
+  flash("파티 " + i + "에 넣었습니다");
+}
+
+async function savePreset(){
+  if (preFor == null) return;
+  const p = P(preFor), names = preNames(p);
+  if (!names.length) return;
+  const id = "pr" + Date.now().toString(36);
+  const body = { name: ($("preName").value.trim() || names.join("·")),
+                 at: Date.now(), ord: Object.keys(presets).length };
+  SLOTKEY.forEach(k=>{ if (p[k]) body[k] = p[k]; });
+  presets[id] = body; renderPresets();
+  if (!db) return;
+  try { await db.doc(U+"presets/" + id).set(body); }
+  catch(e){ flash("저장하지 못했습니다"); }
+}
+
+async function removePreset(id){
+  delete presets[id]; renderPresets();
+  if (!db) return;
+  try { await db.doc(U+"presets/" + id).delete(); } catch(e){}
+}
+
+/* 밝기 — 기본은 다크. 라이트로 바꾸면 저장해서 다음에도 유지한다. */
+let theme = "dark";
+function applyTheme(t){
+  theme = (t === "light") ? "light" : "dark";
+  document.body.classList.toggle("light", theme === "light");
+  const b = $("thBtn"); if (b) b.textContent = theme === "light" ? "라이트" : "다크";
+}
+async function saveTheme(){
+  if (!db) return;
+  try { await db.doc(U+"config/prefs").set({ theme }); } catch(e){}
+}
+
+async function saveRoster(){
+  if (!db) return;
+  const body = {};
+  for (const n in over){
+    const o = over[n];
+    if (o && (o.s!=null || o.r!=null || o.f!=null || o.w || o.o===false)) body[n] = o;
+  }
+  try { await db.doc(U+"config/roster").set(body); }
+  catch(e){ flash("저장하지 못했습니다"); }
+}
+
+/* ───────── 렌더 ───────── */
+function elStyle(el){ return "color:var("+ELV[el]+")"; }
+/* 초상 — 보유 캐릭은 인게임 공명자 카드를 잘라 쓴다.
+   방랑자(속성 가변)와 미보유 캐릭은 속성 큐브로 대체. */
+const PORTRAIT = {"플로로": 1, "루파": 2, "카르티시아": 3, "샤콘": 4, "젠니": 5, "칸타렐라": 6, "브렌트": 7, "페비": 8, "로코코": 9, "카를로타": 10, "카멜리아": 11, "파수인": 12, "상리요": 13, "절지": 14, "장리": 15, "금희": 16, "음림": 17, "기염": 18, "카카루": 19, "앙코": 20, "히유키": 22, "청초": 23, "벨리나": 24, "여우의 별자리": 25, "경연": 26, "수수": 27, "양양(현령)": 28, "루실라": 29, "루시": 30, "레베카": 31, "데니아": 32, "시그리카": 33, "루크": 34, "에이메스": 35, "모니에": 36, "린네": 37, "치사": 38, "구원": 39, "갈브레나": 40, "유노": 41, "아우구스타": 42, "복링": 43, "루미": 44, "산화": 45, "모르테피": 46, "감심": 47, "설지": 48, "연무": 49, "양양": 50, "알토": 51, "능양": 52, "단근": 53, "도기": 54, "치샤": 55, "유호": 56};
+const SVGNS = "http://www.w3.org/2000/svg";
+const FACES = [["M12 1.5 22 7.2 12 12.9 2 7.2Z", "1",   "--el-spectro"],
+               ["M2 7.2 12 12.9 12 23.5 2 17.8Z", ".62", "--el-conducto"],
+               ["M22 7.2 12 12.9 12 23.5 22 17.8Z", ".38", "--el-havoc"]];
+function cubeFor(el){
+  const mixed = el === "복합";
+  const sv = document.createElementNS(SVGNS, "svg");
+  sv.setAttribute("viewBox", "0 0 24 25"); sv.setAttribute("class", "cube");
+  sv.setAttribute("aria-hidden", "true");
+  if (!mixed) sv.style.cssText = elStyle(el);
+  FACES.forEach(([d, op, tok]) => {
+    const pa = document.createElementNS(SVGNS, "path");
+    pa.setAttribute("d", d);
+    if (mixed) pa.setAttribute("fill", "var(" + tok + ")");
+    else { pa.setAttribute("fill", "currentColor"); pa.setAttribute("opacity", op); }
+    sv.appendChild(pa);
+  });
+  return sv;
+}
+function avatarFor(name, el){
+  const id = PORTRAIT[name];
+  if (!id) return cubeFor(el);
+  const im = document.createElement("img");
+  im.className = "av"; im.src = "av/" + id + ".webp";
+  im.alt = ""; im.loading = "lazy"; im.decoding = "async";
+  im.addEventListener("error", () => { im.replaceWith(cubeFor(el)); }, { once:true });
+  return im;
+}
+// 자리 표기("1번", "1·2번", "3·2번")에서 자리 번호만 뽑는다
+const seatNums = n => ((C[n] && C[n].seat || "").match(/\d/g) || []).map(Number);
+/* 파티 대표 속성: 1번 딜러 기준.
+   2번에 들어간 캐릭이 '1번 자리'를 가진 딜러이고 속성까지 다를 때만 투딜 → 복합.
+   치샤처럼 딜러 역할이지만 자리가 2번뿐인 경우는 투딜로 세지 않는다. */
+function partyEl(p){
+  if (!p.d || !C[p.d]) return "";
+  const e1 = C[p.d].el;
+  if (e1 === "복합") return "복합";
+  const sub = p.b && C[p.b] ? C[p.b] : null;
+  if (sub && sub.role === "딜러" && seatNums(p.b).includes(1) && sub.el !== e1) return "복합";
+  return e1;
+}
+
+function render(){ renderSummary(); renderBoard(); renderRoster(); if (pick) renderPicker(); }
+
+function renderSummary(){
+  let total=0, best=0, bestI=0;
+  const m = maxParties();
+  for (let i=1;i<=m;i++){ const v = Number(P(i).score)||0; total+=v;
+    if (v>best){ best=v; bestI=i; } }
+  $("sTotal").textContent = total ? total.toLocaleString() : "—";
+  $("sBest").textContent  = best ? best.toLocaleString() : "—";
+  const bd = bestI ? P(bestI).d : "";
+  $("sMvp").textContent = bestI ? ("파티 "+bestI+(bd?" · "+bd:"")) : "—";
+  $("sCap").textContent = fullTeams()+" / "+m+" 팀";
+  /* 투입 COST는 캐릭터를 한 번씩만 센다. 피로도 2회 캐릭을 두 번 내보내도
+     뽑기를 두 번 한 건 아니므로, 분모(보유 전체)와 같은 기준이어야 한다. */
+  const placed = new Set();
+  for (let i=1;i<=m;i++){ const q=P(i); SLOTKEY.forEach(k=>{ if (q[k]) placed.add(q[k]); }); }
+  let cost=0; placed.forEach(n=>{ cost += unitCost(n); });
+  const pool = Object.keys(C).reduce((a,n)=>a+(ownOf(n)?unitCost(n):0),0);
+  $("sCost").textContent = num(cost)+" / "+num(pool);
+  $("boardSub").textContent = "3인 고정 · 슬롯 "+m+"개";
+  window.__mvp = bestI;
+}
+
+function renderBoard(){
+  const board = $("board"), m = maxParties();
+  board.textContent = "";
+  board.classList.toggle("ordmode", ordMode);
+  for (let i=1;i<=m;i++){
+    const p = P(i), card = document.createElement("div");
+    card.className = "pt grid8";
+    const el = partyEl(p);
+    if (el) card.dataset.el = el;
+    if (window.__mvp === i) card.classList.add("mvp");
+
+    const no = document.createElement("span"); no.className="pt-no";
+    if (ordMode){
+      const lab=document.createElement("span"); lab.className="pt-n";
+      lab.textContent = String(i); no.appendChild(lab);
+      const mv=document.createElement("span"); mv.className="mv";
+      [["▲", i>1, i-1],["▼", i<m, i+1]].forEach(([t,ok,dest])=>{
+        const b=document.createElement("button"); b.className="mvb"; b.textContent=t;
+        b.title = t==="▲" ? "위로" : "아래로";
+        if (!ok) b.disabled = true;
+        b.addEventListener("pointerdown", ev=>ev.stopPropagation());
+        b.addEventListener("click", ev=>{ ev.stopPropagation(); moveParty(i,dest); });
+        mv.appendChild(b);
+      });
+      no.appendChild(mv);
+      no.addEventListener("pointerdown", ev=>ptDown(ev,i,card,no));
+      no.addEventListener("pointermove", ptMove);
+      no.addEventListener("pointerup", ptUp);
+      no.addEventListener("pointercancel", ptUp);
+    } else {
+      no.textContent = "파티 "+i;
+      no.title = "프리셋 — 저장하거나 불러오기";
+      no.addEventListener("click", ()=>openPreset(i));
+    }
+    card.appendChild(no);
+    if (el){ const chip=document.createElement("span");
+      chip.className = "el-chip" + (el === "복합" ? " mixed" : "");
+      if (el !== "복합") chip.style.cssText = elStyle(el);
+      chip.textContent = el; card.appendChild(chip); }
+    else {
+      // 아직 대표 속성이 없는 자리 — 프리셋 불러오기 버튼으로 쓴다
+      const pb=document.createElement("button"); pb.className="pre-btn";
+      pb.textContent="프리셋"; pb.title="저장된 프리셋 불러오기";
+      pb.addEventListener("click", ()=>openPreset(i, true));
+      card.appendChild(pb);
+    }
+    const sc=document.createElement("input"); sc.className="score"; sc.type="text";
+    sc.inputMode="numeric"; sc.placeholder="점수"; sc.id="sc"+i;
+    sc.value = p.score ? p.score.toLocaleString("en-US") : "";
+    sc.addEventListener("input", ()=>{
+      const v = parseInt(sc.value.replace(/[^\d]/g,""),10);
+      const id=String(i); parties[id] = Object.assign({}, parties[id]);
+      if (Number.isFinite(v)) parties[id].score = v; else delete parties[id].score;
+      renderSummary(); markCards();
+    });
+    sc.addEventListener("blur", ()=>{
+      const v = parseInt(sc.value.replace(/[^\d]/g,""),10);
+      sc.value = Number.isFinite(v) ? v.toLocaleString("en-US") : "";
+    });
+    sc.addEventListener("change", ()=>saveParty(i));
+    card.appendChild(sc);
+
+    SLOTKEY.forEach((k,si)=>{
+      const nm = p[k], b = document.createElement("button");
+      b.className = "slot s-" + k + (nm ? "" : " empty");
+      b.addEventListener("click", ()=>openPicker(i,k));
+      // 이름이 길어 잘리는 경우를 위해 전체 정보를 툴팁으로
+      b.title = (nm && C[nm])
+        ? nm + " · " + specOf(nm) + " · COST " + num(unitCost(nm))
+        : SLOTPOS[si] + " " + SLOTNAME[si];
+      if (nm && C[nm]){
+        b.appendChild(avatarFor(nm, C[nm].el));
+      }
+      const n=document.createElement("span"); n.className="nm";
+      n.textContent = nm || ("+ "+SLOTNAME[si]);
+      b.appendChild(n);
+      if (nm && C[nm]){
+        const t=document.createElement("span"); t.className="tag";
+        t.textContent = specOf(nm);
+        t.title = "COST " + num(unitCost(nm)); b.appendChild(t);
+      }
+      card.appendChild(b);
+    });
+
+    const cz=document.createElement("div"); cz.className="ptcz"; cz.dataset.c=i;
+    card.appendChild(cz);
+
+    const mo=document.createElement("input"); mo.className="memo"; mo.id="mo"+i;
+    mo.placeholder="메모"; mo.value = p.memo || "";
+    mo.addEventListener("input", ()=>{ const id=String(i);
+      parties[id]=Object.assign({},parties[id]);
+      if (mo.value) parties[id].memo = mo.value; else delete parties[id].memo; });
+    mo.addEventListener("change", ()=>saveParty(i));
+    card.appendChild(mo);
+
+    const st=document.createElement("div"); st.className="st"; st.dataset.i=i;
+    card.appendChild(st);
+    board.appendChild(card);
+  }
+  markCards();
+}
+
+function markCards(){
+  const m = maxParties();
+  document.querySelectorAll(".st").forEach(st=>{
+    const i = Number(st.dataset.i), p = P(i);
+    const names = SLOTKEY.map(k=>p[k]).filter(Boolean);
+    const bad = names.filter(n => usedOf(n) > fatOf(n));
+    const card = st.closest(".pt");
+    card.classList.toggle("bad", bad.length>0);
+    card.classList.toggle("mvp", window.__mvp === i);
+    st.textContent = bad.length ? "⚠ 피로도 초과 — " + [...new Set(bad)].join(", ") : "";
+    const cz = document.querySelector('.ptcz[data-c="'+i+'"]');
+    if (cz){
+      const v = partyCost(p);
+      cz.textContent = names.length ? num(v) : "";
+      cz.className = "ptcz" + (v ? "" : " zero");
+      cz.title = names.length ? "파티 COST " + num(v) : "";
+    }
+  });
+}
+
+function renderRoster(){
+  const box = $("rlist"); box.textContent = "";
+  const tf = totalFat();
+  $("rosterSub").textContent = "피로도 " + (tf - placedCount()) + " / " + tf + " 남음";
+
+  const groups = [["피로도 2회", BASE.map(b=>b[0]).filter(n=>fatOf(n)>=2)]];
+  ELORD.forEach(el=>{
+    const list = BASE.map(b=>b[0]).filter(n=>C[n].el===el && fatOf(n)<2);
+    if (list.length) groups.push([el, list]);
+  });
+
+  groups.forEach(([label,list],gi)=>{
+    if (!list.length) return;
+    const h = document.createElement("div");
+    h.className = "r-grp" + (gi===0?" first":"");
+    h.textContent = label; box.appendChild(h);
+    if (editMode){
+      const hd = document.createElement("div"); hd.className = "r ehd";
+      hd.appendChild(document.createElement("span"));            // 초상 자리
+      hd.appendChild(document.createElement("span"));            // 이름 자리
+      const w = document.createElement("span"); w.className = "edit-row";
+      ["돌파","재련","피로도"].forEach(t=>{
+        const e = document.createElement("span"); e.textContent = t; w.appendChild(e); });
+      hd.appendChild(w);
+      const wh = document.createElement("span"); wh.textContent = "무기"; hd.appendChild(wh);
+      const oh = document.createElement("span"); oh.textContent = "보유"; hd.appendChild(oh);
+      box.appendChild(hd);
+    }
+    list.forEach(n=>{
+      const c = C[n], f = fatOf(n), u = usedOf(n), left = f-u, sr = srOf(n);
+      const row = document.createElement("div");
+      row.className = "r" + (ownOf(n)||left===0?(left===0?" done":""):" done")
+        + (left<0?" over":"") + (f>=2?" two":"") + (ownOf(n)?"":" unowned");
+      row.style.cssText = elStyle(c.el);
+      row.appendChild(avatarFor(n, c.el));
+      const nm=document.createElement("span"); nm.className="nm"; nm.textContent=n;
+      nm.title = n + (c.note ? " — " + c.note : ""); row.appendChild(nm);
+      if (editMode){
+        const wrap=document.createElement("span"); wrap.className="edit-row";
+        [["s","돌파"],["r","재련"],["f","피로도"]].forEach(([key,lab])=>{
+          const inp=document.createElement("input"); inp.type="text"; inp.inputMode="numeric";
+          inp.id = "ov-"+key+"-"+n; inp.title = lab;
+          inp.value = key==="f" ? f : sr[key];
+          inp.addEventListener("change", ()=>{
+            const v = parseInt(inp.value.replace(/[^\d]/g,""),10);
+            over[n] = Object.assign({}, over[n]);
+            if (Number.isFinite(v)) over[n][key] = v; else delete over[n][key];
+            saveRoster(); render();
+          });
+          wrap.appendChild(inp);
+        });
+        row.appendChild(wrap);
+        const wb=document.createElement("button"); wb.className="wbtn";
+        wb.title="무기 등급 — 눌러서 전용/상시/4성 전환";
+        wb.textContent = WEPSHORT[wepOf(n)];
+        wb.addEventListener("click", ()=>{
+          const cur = WEPS.indexOf(wepOf(n));
+          over[n] = Object.assign({}, over[n]);
+          over[n].w = WEPS[(cur+1) % WEPS.length];
+          saveRoster(); render();
+        });
+        row.appendChild(wb);
+        const ob=document.createElement("button");
+        ob.className="wbtn ownb" + (ownOf(n) ? "" : " off");
+        ob.textContent = ownOf(n) ? "보유" : "없음";
+        ob.title = "보유 여부 — 미보유는 피로도·COST에서 빠집니다";
+        ob.addEventListener("click", ()=>{
+          over[n] = Object.assign({}, over[n]);
+          if (ownOf(n)) over[n].o = false; else delete over[n].o;
+          saveRoster(); render();
+        });
+        row.appendChild(ob);
+      } else {
+        const s=document.createElement("span"); s.className="sr";
+        s.textContent = specOf(n); row.appendChild(s);
+        const cz=document.createElement("span");
+        const uc = unitCost(n);
+        cz.className = "cz" + (uc ? "" : " zero"); cz.textContent = num(uc);
+        cz.title = "캐릭터 "+num(charCost(n))+" + 무기 "+num(wepCost(n));
+        row.appendChild(cz);
+        const ft=document.createElement("span"); ft.className="fat";
+        ft.textContent = left<0 ? "초과 "+left : (left===0 ? "소진" : "여유 "+left+"/"+f);
+        row.appendChild(ft);
+      }
+      box.appendChild(row);
+    });
+  });
+}
+
+/* ───────── 피커 ───────── */
+function openPicker(pi, slot){
+  pick = {pi, slot};
+  $("pTitle").textContent = "파티 "+pi+" · "+SLOTNAME[SLOTKEY.indexOf(slot)]+" 자리";
+  $("q").value = "";
+  $("sheet").hidden = false; lockScroll();
+  renderPicker();
+  setTimeout(()=>$("q").focus(), 30);
+}
+let lockY = 0;
+function lockScroll(){
+  const open = !$("sheet").hidden || !$("psheet").hidden || !$("asheet").hidden;
+  const was = document.body.classList.contains("sheet-open");
+  if (open === was) return;
+  if (open){
+    // 본문을 고정하면 스크롤 위치가 0으로 떨어지므로, 보던 자리를 기억했다가 되돌린다
+    lockY = window.scrollY || 0;
+    document.body.style.top = (-lockY) + "px";
+    document.body.classList.add("sheet-open");
+  } else {
+    document.body.classList.remove("sheet-open");
+    document.body.style.top = "";
+    window.scrollTo(0, lockY);
+  }
+}
+function closePicker(){ pick = null; $("sheet").hidden = true; lockScroll(); }
+
+function renderPicker(){
+  const list = $("plist"), q = $("q").value.trim().toLowerCase();
+  const cur = P(pick.pi)[pick.slot];
+  const wantRole = ["딜러","버퍼","힐러"][SLOTKEY.indexOf(pick.slot)];
+  list.textContent = "";
+
+  let names = BASE.map(b=>b[0]).filter(n => ownOf(n) || n === cur);
+  if (q) names = names.filter(n => n.toLowerCase().includes(q) || C[n].note.toLowerCase().includes(q));
+  names.sort((a,b)=>{
+    const ra = C[a].role===wantRole ? 0 : 1, rb = C[b].role===wantRole ? 0 : 1;
+    if (ra!==rb) return ra-rb;
+    const la = fatOf(a)-usedOf(a), lb = fatOf(b)-usedOf(b);
+    if ((la<=0)!==(lb<=0)) return la<=0 ? 1 : -1;
+    return ELORD.indexOf(C[a].el) - ELORD.indexOf(C[b].el);
+  });
+
+  if (!names.length){
+    const e=document.createElement("div"); e.className="none"; e.textContent="찾는 캐릭터가 없습니다";
+    list.appendChild(e); return;
+  }
+  names.forEach(n=>{
+    const c = C[n], left = fatOf(n) - usedOf(n) + (cur===n ? 1 : 0);
+    const b = document.createElement("button");
+    b.className = "cand" + (left<=0 ? " out":"") + (cur===n ? " cur":"");
+    b.style.cssText = elStyle(c.el);
+    b.appendChild(avatarFor(n, c.el));
+    const nm=document.createElement("span"); nm.className="nm"; nm.textContent=n; b.appendChild(nm);
+    const ft=document.createElement("span"); ft.className="ft"; ft.textContent=c.note; b.appendChild(ft);
+    const rm=document.createElement("span"); rm.className="rm";
+    rm.textContent = (left<=0 ? "소진" : "여유 "+left) + " · " + num(unitCost(n));
+    rm.title = "COST " + num(unitCost(n)); b.appendChild(rm);
+    b.addEventListener("click", ()=>choose(n));
+    list.appendChild(b);
+  });
+}
+function choose(name){
+  const id = String(pick.pi);
+  parties[id] = Object.assign({}, parties[id]);
+  parties[id][pick.slot] = name;
+  saveParty(pick.pi); closePicker(); render();
+}
+function clearSlot(){
+  const id = String(pick.pi);
+  parties[id] = Object.assign({}, parties[id]);
+  delete parties[id][pick.slot];
+  saveParty(pick.pi); closePicker(); render();
+}
+
+$("veil").addEventListener("click", closePicker);
+$("pClose").addEventListener("click", closePicker);
+$("clrBtn").addEventListener("click", clearSlot);
+$("q").addEventListener("input", ()=>{ if (pick) renderPicker(); });
+document.addEventListener("keydown", e=>{
+  if (e.key!=="Escape") return;
+  if (pick) closePicker(); else if (preFor != null) closePreset();
+  else if (!$("asheet").hidden) closeArchive();
+});
+$("arBtn").addEventListener("click", openArchive);
+$("arClose").addEventListener("click", closeArchive);
+$("aveil").addEventListener("click", closeArchive);
+$("arSave").addEventListener("click", saveArchive);
+$("arClear").addEventListener("click", clearBoard);
+$("preBtn").addEventListener("click", ()=>openPreset(null));
+$("preClose").addEventListener("click", closePreset);
+$("pveil").addEventListener("click", closePreset);
+$("preSave").addEventListener("click", savePreset);
+$("preName").addEventListener("keydown", e=>{ if (e.key==="Enter") savePreset(); });
+$("thBtn").addEventListener("click", ()=>{
+  applyTheme(theme === "light" ? "dark" : "light");
+  saveTheme();
+});
+$("ordBtn").addEventListener("click", ()=>{
+  ordMode = !ordMode;
+  $("ordBtn").setAttribute("aria-pressed", String(ordMode));
+  $("ordBtn").textContent = ordMode ? "순서 끝내기" : "순서 편집";
+  renderBoard();
+});
+$("editBtn").addEventListener("click", ()=>{
+  editMode = !editMode;
+  $("editBtn").setAttribute("aria-pressed", String(editMode));
+  $("editBtn").textContent = editMode ? "편집 끝내기" : "명부 편집";
+  renderRoster();
+});
+
+render();
+
+/* ───────── 파이어베이스 연결 ───────── */
+window.__fbStart = function(fdb, uid){
+  U = "users/" + uid + "/";
+  db = fdb; canWrite = true;
+  parties = {}; over = {}; presets = {}; archives = {};
+  boot();
+};
+window.__fbDenied = function(){
+  $("gate").hidden = false; $("outBtn").hidden = true;
+  $("gateMsg").textContent = "아직 승인되지 않은 계정입니다.";
+  $("gateIn").textContent = "다른 계정으로 로그인";
+  $("gateIn").disabled = false;
+};
+</script>
+
+<script type="module">
+/* 파이어베이스 — 로그인과 저장소. 설정값은 브라우저에 공개되는 값이라 비밀이 아니고,
+   실제 보안은 Firestore 보안 규칙이 담당한다. */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, collection, getDoc, getDocs, setDoc, deleteDoc, onSnapshot }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDJO85x3R7q6EDcX46TnJZvbqVh2iPu4ME",
+  authDomain: "project-matrix-wuwa.firebaseapp.com",
+  projectId: "project-matrix-wuwa",
+  storageBucket: "project-matrix-wuwa.firebasestorage.app",
+  messagingSenderId: "555201217870",
+  appId: "1:555201217870:web:0887106aaa4782a2ce8a1f"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const fs   = getFirestore(app);
+const $$ = id => document.getElementById(id);
+
+/* 편성판 코드가 쓰던 저장소 모양 그대로 흉내 내는 껍데기.
+   덕분에 본문 코드는 한 줄도 안 바꾸고 그대로 돌아간다. */
+const wrapDoc = sn => ({ exists: sn.exists(), data: () => sn.data() });
+const wrapCol = sn => ({ docs: sn.docs.map(d => ({ id: d.id, exists: true, data: () => d.data() })) });
+const shim = {
+  doc: p => ({
+    get:        () => getDoc(doc(fs, p)).then(wrapDoc),
+    set:        o  => setDoc(doc(fs, p), o),
+    delete:     () => deleteDoc(doc(fs, p)),
+    onSnapshot: (cb, err) => onSnapshot(doc(fs, p), sn => cb(wrapDoc(sn)), err || (()=>{}))
+  }),
+  collection: p => ({
+    get:        () => getDocs(collection(fs, p)).then(wrapCol),
+    onSnapshot: (cb, err) => onSnapshot(collection(fs, p), sn => cb(wrapCol(sn)), err || (()=>{}))
+  })
+};
+
+$$("gateIn").addEventListener("click", async () => {
+  $$("gateIn").disabled = true;
+  $$("gateSub").textContent = "";
+  try { await signInWithPopup(auth, new GoogleAuthProvider()); }
+  catch (e){
+    $$("gateIn").disabled = false;
+    $$("gateSub").textContent = "로그인에 실패했습니다.\n" + (e && e.code || "");
+  }
+});
+$$("outBtn").addEventListener("click", () => signOut(auth).then(()=>location.reload()));
+
+onAuthStateChanged(auth, user => {
+  if (!user){
+    $$("gate").hidden = false; $$("outBtn").hidden = true;
+    $$("gateIn").disabled = false; $$("gateSub").textContent = "";
+    return;
+  }
+  $$("gateSub").textContent = user.email || "";
+  window.__fbStart(shim, user.uid);
+});
+
+const denied = window.__fbDenied;
+window.__fbDenied = function(){
+  denied();
+  $$("gateSub").textContent = (auth.currentUser && auth.currentUser.email || "")
+    + "\n이 주소를 관리자에게 알려 승인을 받으세요.";
+};
+</script>
