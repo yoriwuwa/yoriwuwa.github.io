@@ -81,6 +81,22 @@ input{font:inherit;color:inherit}
 .sec-hd h2{font-size:.82rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
   font-family:var(--mono);color:var(--dim)}
 .sec-hd span{font-size:.72rem;color:var(--faint);font-family:var(--mono)}
+.se-row{padding:7px 0;border-top:1px solid var(--line)}
+.se-t{display:flex;align-items:baseline;gap:7px}
+.se-t b{font-size:.8rem;font-weight:600;color:var(--fg)}
+.se-el{font-size:.63rem;font-weight:600;padding:1px 7px;border-radius:999px;
+  border:1px solid currentColor;color:var(--dim)}
+.se-d{font-size:.74rem;line-height:1.6;color:var(--dim);margin-top:3px}
+.seed{width:100%;margin-top:12px;min-height:160px;background:var(--sunk);color:var(--fg);
+  border:1px solid var(--line);border-radius:8px;padding:9px;font-family:var(--mono);
+  font-size:.7rem;line-height:1.5;resize:vertical}
+.seed[hidden]{display:none}
+/* 파티 줄의 카드 칸 */
+.mowrap{grid-area:mo;display:flex;gap:5px;min-width:0}
+.mowrap .memo{grid-area:auto;flex:1 1 auto;min-width:0}
+.cardsel{flex:0 0 auto;width:62px;font:inherit;font-size:.68rem;background:var(--sunk);
+  color:var(--dim);border:1px solid var(--line);border-radius:6px;padding:0 2px;cursor:pointer}
+.cardsel.on{border-color:var(--accent);color:var(--accent)}
 .pre-top{display:flex;align-items:center;gap:8px}
 .pre-top .pre-hd{flex:1;margin:0}
 /* 프리셋 자리 바꾸기 버튼 */
@@ -100,7 +116,7 @@ input{font:inherit;color:inherit}
 /* ── 파티 카드 ── */
 .board{display:flex;flex-direction:column;gap:6px}
 .grid8{display:grid;gap:7px 9px;align-items:center;min-width:0;
-  grid-template-columns:50px 58px minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 92px 54px minmax(0,.9fr);
+  grid-template-columns:50px 58px minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 88px 50px minmax(0,1.5fr);
   grid-template-areas:"no el d b h sc cz mo" "st st st st st st st st"}
 .bhd{padding:0 11px 5px;font-family:var(--mono);font-size:.66rem;letter-spacing:.05em;
   color:var(--faint)}
@@ -464,6 +480,7 @@ body.sheet-open{position:fixed;left:0;right:0;width:100%;overflow:hidden}
     <button class="ghost" id="outBtn" hidden>로그아웃</button>
     <button class="ghost" id="tipBtn" title="사용법 둘러보기">사용법</button>
     <button class="ghost" id="preBtn">프리셋</button>
+    <button class="ghost" id="seBtn" title="이번 시즌 보스와 카드">시즌</button>
     <button class="ghost" id="gdBtn" title="표기와 계산 규칙">규칙</button>
     <button class="ghost" id="efBtn" title="COST 대비 점수">효율</button>
     <button class="ghost" id="arBtn">시즌 기록</button>
@@ -511,6 +528,20 @@ body.sheet-open{position:fixed;left:0;right:0;width:100%;overflow:hidden}
     <p id="gateMsg">구글 계정으로 로그인하면 내 편성판이 열립니다.</p>
     <button id="gateIn">구글로 로그인</button>
     <p class="gate-sub" id="gateSub"></p>
+  </div>
+</div>
+
+<div class="sheet" id="ssheet" hidden>
+  <div class="veil" id="sveil"></div>
+  <div class="panel" role="dialog" aria-modal="true" aria-labelledby="seTitle">
+    <div class="p-hd">
+      <h3 id="seTitle">이번 시즌 보스와 카드</h3><span class="sp"></span>
+      <button class="p-x" id="seClose" aria-label="닫기">✕</button>
+    </div>
+    <div class="gd" id="sebox"></div>
+    <button class="ar-load alt" id="seOpen" hidden>직접 수정 (관리자)</button>
+    <textarea class="seed" id="seEdit" spellcheck="false" hidden></textarea>
+    <button class="ar-load alt" id="seSave" hidden>시즌 정보 저장</button>
   </div>
 </div>
 
@@ -563,7 +594,7 @@ body.sheet-open{position:fixed;left:0;right:0;width:100%;overflow:hidden}
       <h4>피로도와 슬롯</h4>
       <table><tbody>
         <tr><td class="k">슬롯 수</td><td>피로도 총합 ÷ 3을 내림. 3명이 모이지 않는 자투리 피로도는 출전할 수 없습니다</td></tr>
-        <tr><td class="k">피로도 2회</td><td>범용 힐러 수수·모니에·파수인·벨리나·복링·설지 고정, 린네는 이번 시즌 한정</td></tr>
+        <tr><td class="k">피로도 2회</td><td>범용 힐러 수수·모니에·파수인·벨리나·복링·설지와 릴리는 상시, 루실라는 이번 시즌 한정</td></tr>
         <tr><td class="k">보유 여부</td><td>명부 편집에서 <b>없음</b>을 누르면 미보유. 피로도·COST 합계와 선택창에서 빠집니다</td></tr>
       </tbody></table>
 
@@ -571,6 +602,13 @@ body.sheet-open{position:fixed;left:0;right:0;width:100%;overflow:hidden}
       <table><tbody>
         <tr><td class="k">대표 속성</td><td>1번 딜러의 속성</td></tr>
         <tr><td class="k">복합</td><td>2번에 <b>1번 자리</b>를 가진 딜러가 들어가고 1번과 속성이 다를 때. 치샤처럼 자리가 2번뿐인 딜러는 투딜로 세지 않습니다. 방랑자는 포지션마다 속성이 달라 상시 복합</td></tr>
+      </tbody></table>
+
+      <h4>시즌 보스와 카드</h4>
+      <table><tbody>
+        <tr><td class="k">보기</td><td>상단 <b>시즌</b> 버튼. 보스 5마리의 특성과 버프 카드 4종의 효과가 들어 있다</td></tr>
+        <tr><td class="k">카드 지정</td><td>파티 줄 메모 왼쪽의 <b>카드</b> 칸에서 그 파티가 고른 카드를 지정. 시즌 보관 시 같이 굳는다</td></tr>
+        <tr><td class="k">수정</td><td>관리자만. 시즌 창 아래 입력란에서 고치면 모두에게 반영된다</td></tr>
       </tbody></table>
 
       <h4>편성 조작</h4>
@@ -687,7 +725,7 @@ const BASE = [
 ["히유키","5성","응결","딜러","1번",0,1,1,"서리 이상딜러"],
 ["카를로타","5성","응결","딜러","1번",0,1,1,"공명스킬딜러"],
 ["능양","5성","응결","딜러","1번",0,1,1,"공명스킬딜러"],
-["루실라","5성","응결","버퍼","2번",0,1,1,"모드전환(서리/에코)"],
+["루실라","5성","응결","버퍼","2번",0,1,2,"모드전환(서리/에코) · 시즌 한정 2회"],
 ["절지","5성","응결","버퍼","2번",0,1,1,"버퍼(공명스킬)"],
 ["산화","4성","응결","버퍼","2번",6,5,1,"버퍼(일반공격)"],
 ["유호","4성","응결","힐러","3번",6,5,1,"힐러"],
@@ -706,7 +744,7 @@ const BASE = [
 ["카카루","5성","전도","딜러","1번",0,1,1,"공명해방딜러"],
 ["상리요","5성","전도","딜러","1번",0,1,1,"공명해방딜러"],
 ["쇄명","5성","전도","버퍼","2번",0,1,1,"합일 서브딜러/버퍼"],
-["릴리","5성","회절","딜러","1번",0,1,1,""],
+["릴리","5성","회절","딜러","1번",0,1,2,"상시 2회"],
 ["레베카","5성","전도","버퍼","2번",0,1,1,"버퍼(해킹)"],
 ["루미","4성","전도","버퍼","2번",0,1,1,"버퍼(공명스킬)"],
 ["음림","5성","전도","버퍼","2번",0,1,1,"버퍼(공명해방)"],
@@ -726,7 +764,7 @@ const BASE = [
 ["루크","5성","회절","딜러","1번",0,1,1,"일반공격딜러(밀집)"],
 ["젠니","5성","회절","딜러","1번",0,1,1,"강공격딜러(광학)"],
 ["금희","5성","회절","딜러","1번",0,1,1,"공명스킬딜러"],
-["린네","5성","회절","버퍼","2번",0,1,2,"모드전환(파동/밀집) · 시즌 한정 2회"],
+["린네","5성","회절","버퍼","2번",0,1,1,"모드전환(파동/밀집)"],
 ["페비","5성","회절","버퍼","2번",0,1,1,"버퍼(광학)"],
 ["양양(현령)","5성","인멸","딜러","1번",0,1,1,"강공격딜러(암흑)"],
 ["플로로","5성","인멸","딜러","1번",0,1,1,"공명스킬딜러(에코)"],
@@ -881,7 +919,9 @@ async function boot(){
     if (rs.exists) over = Object.assign({}, rs.data());
     /* 공용 명부·초상 — 여기서 막혀도 내 편성은 열려야 하니 따로 감싼다 */
     try {
-      const rc = await db.collection("roster").get();
+        const se = await db.doc("season/current").get();
+      if (se.exists && se.data().bosses) season = se.data();
+    const rc = await db.collection("roster").get();
       rc.docs.forEach(d => { if (d.exists) addons[d.id] = d.data(); });
       const pc = await db.collection("portraits").get();
       pc.docs.forEach(d => { if (d.exists && d.data().img) pics[d.id] = d.data().img; });
@@ -1030,6 +1070,8 @@ const TOUR = [
     b:"돌파·재련·무기 등급·피로도를 고칩니다. 아직 없는 캐릭은 <b>없음</b>을 눌러 미보유로 두면 피로도·COST 합계와 선택창에서 빠집니다." },
   { k:".roster", h:"피로도 명부",
     b:"캐릭마다 쓸 수 있는 횟수와 남은 횟수입니다. 다 쓰면 <b>소진</b>으로 흐려집니다. 피로도 총합 ÷ 3을 내림한 값이 슬롯 수가 됩니다. 오른쪽 위에서 <b>COST 높은순·남은 피로도순</b>으로 정렬할 수 있습니다." },
+  { k:"#seBtn", h:"이번 시즌 보스와 카드",
+    b:"보스 5마리의 특성과 버프 카드 4종이 들어 있습니다. 파티 줄의 <b>카드</b> 칸에서 그 파티가 고른 카드를 지정해두면 시즌 기록에 같이 남습니다." },
   { k:"#gdBtn", h:"다 봤습니다",
     b:"투자 표기와 COST 계산 규칙은 <b>규칙</b>에 정리돼 있습니다. 밝기는 <b>다크</b>로 바꾸고, 이 안내는 <b>사용법</b>으로 언제든 다시 열 수 있습니다." }
 ];
@@ -1136,6 +1178,7 @@ function snapshot(){
     SLOTKEY.forEach(k=>{ if (p[k]) row[k] = p[k]; });
     if (p.score) row.score = p.score;
     if (p.vip) row.vip = 1;
+    if (p.card) row.card = p.card;
     if (p.memo) row.memo = p.memo;
     out[String(i)] = row;
     names.forEach(nm=>seen.add(nm));
@@ -1366,6 +1409,7 @@ async function loadArchive(id){
     SLOTKEY.forEach(sk=>{ if (src[sk]) row[sk] = src[sk]; });
     if (src.score) row.score = src.score;
     if (src.vip) row.vip = 1;
+    if (src.card) row.card = src.card;
     if (src.memo) row.memo = src.memo;
     next[k] = row; touch.add(k);
   });
@@ -1640,6 +1684,74 @@ function applyTheme(t){
 async function saveTheme(){
   if (!db) return;
   try { await db.doc(U+"config/prefs").set({ theme }); } catch(e){}
+}
+
+/* ───────── 시즌 데이터 ─────────
+   보스와 버프 카드는 모두에게 같으므로 공용으로 둔다. 관리자만 고칠 수 있다. */
+const SEASON_DEF = {
+  bosses: [
+    { n:"고릴라",  el:"기류",   d:"받피감 20% · 조화도 파괴 시 받피증 12.5% 4중첩 (시간제한 없음)" },
+    { n:"데니아",  el:"용융",   d:"이상효과피해 25% 받피증 · 동결-서리 상태가 되면 받피증 30% (15초)" },
+    { n:"크라운",  el:"인멸",   d:"" },
+    { n:"시길룸",  el:"회절",   d:"" },
+    { n:"미믹",    el:"무속성", d:"고정 보스 · 점수 배율 +0.1" }
+  ],
+  cards: [
+    { n:"공용강화", d:"받피증 20% · 해방피해 20%" },
+    { n:"이상효과", d:"이상 추가 시 받피증 25% · 서리효과피해 80%" },
+    { n:"복합강화", d:"(1) 실드 획득 시 최종뎀 25% 증가 (2초) · (2) 에코 어빌리티 피해 65% · (3) 합일 대응 시 최종뎀 55% 증가" },
+    { n:"조화강화", d:"조화도-이탈 추가 시 최종뎀 25% 증가 · 파동피해 입힌 뒤 최종뎀 30% 증가" }
+  ]
+};
+let season = null;                      // 데이터베이스에서 읽은 것
+const SE = () => season || SEASON_DEF;
+const cardName = i => { const c = SE().cards[i-1]; return c ? c.n : ("카드 " + i); };
+
+function openSeason(){ $("ssheet").hidden = false; lockScroll(); renderSeason(); }
+function closeSeason(){ $("ssheet").hidden = true; lockScroll(); }
+
+function renderSeason(){
+  const box = $("sebox"); box.textContent = "";
+  const d = SE();
+  const sec = (title, note) => {
+    const h = document.createElement("h4"); h.textContent = title; box.appendChild(h);
+    if (note){ const n=document.createElement("p"); n.className="gnote"; n.textContent=note;
+      box.appendChild(n); }
+  };
+  const line = (lead, sub, body, el) => {
+    const w = document.createElement("div"); w.className = "se-row";
+    const t = document.createElement("div"); t.className = "se-t";
+    const b = document.createElement("b"); b.textContent = lead; t.appendChild(b);
+    if (sub){ const e=document.createElement("span"); e.className="se-el";
+      if (el && el !== "무속성") e.style.cssText = elStyle(el);
+      e.textContent = sub; t.appendChild(e); }
+    w.appendChild(t);
+    const p2 = document.createElement("div"); p2.className="se-d";
+    p2.textContent = body || "특성 없음";
+    w.appendChild(p2); box.appendChild(w);
+  };
+  sec("보스", "라운드마다 이 순서로 돌고, 돌 때마다 체력과 점수 배율이 오릅니다.");
+  d.bosses.forEach((b,i)=> line((i+1) + ". " + b.n, b.el, b.d, b.el));
+  sec("버프 카드", "파티마다 하나를 고릅니다. 파티 줄의 카드 칸에서 지정하면 시즌 기록에 같이 남습니다.");
+  d.cards.forEach((c,i)=> line((i+1) + ". " + c.n, null, c.d));
+
+  /* 직접 수정은 관리자에게만, 그것도 눌렀을 때만 펼친다 */
+  const ed = $("seEdit"), sb = $("seSave"), ob = $("seOpen");
+  ob.hidden = !isAdmin;
+  if (!isAdmin){ ed.hidden = true; sb.hidden = true; }
+  if (isAdmin && !ed.value) ed.value = JSON.stringify(SE(), null, 2);
+}
+
+async function saveSeason(){
+  let j;
+  try { j = JSON.parse($("seEdit").value); }
+  catch(e){ flash("형식이 올바르지 않습니다"); return; }
+  if (!j || !Array.isArray(j.bosses) || !Array.isArray(j.cards)){
+    flash("bosses와 cards가 있어야 합니다"); return; }
+  season = j; renderSeason(); render();
+  if (!db) return;
+  try { await db.doc("season/current").set(j); flash("시즌 정보를 저장했습니다"); }
+  catch(e){ flash("관리자만 고칠 수 있습니다"); }
 }
 
 /* ── 끌어다 놓기 ── */
@@ -1936,13 +2048,32 @@ function renderBoard(){
     const cz=document.createElement("div"); cz.className="ptcz"; cz.dataset.c=i;
     card.appendChild(cz);
 
+    const mw = document.createElement("div"); mw.className = "mowrap";
+    const cs = document.createElement("select");
+    cs.className = "cardsel" + (p.card ? " on" : "");
+    const none = document.createElement("option"); none.value=""; none.textContent="카드";
+    cs.appendChild(none);
+    SE().cards.forEach((c,ci)=>{
+      const o=document.createElement("option"); o.value=String(ci+1);
+      o.textContent = (ci+1) + " " + c.n; cs.appendChild(o);
+    });
+    cs.value = p.card ? String(p.card) : "";
+    cs.title = p.card ? (cardName(p.card) + " — " + ((SE().cards[p.card-1]||{}).d || ""))
+                      : "이 파티가 고른 버프 카드";
+    cs.addEventListener("change", ()=>{
+      const id=String(i); parties[id]=Object.assign({},parties[id]);
+      const v = parseInt(cs.value,10);
+      if (Number.isFinite(v)) parties[id].card = v; else delete parties[id].card;
+      saveParty(i); render();
+    });
+    mw.appendChild(cs);
     const mo=document.createElement("input"); mo.className="memo"; mo.id="mo"+i;
     mo.placeholder="메모"; mo.value = p.memo || "";
     mo.addEventListener("input", ()=>{ const id=String(i);
       parties[id]=Object.assign({},parties[id]);
       if (mo.value) parties[id].memo = mo.value; else delete parties[id].memo; });
     mo.addEventListener("change", ()=>saveParty(i));
-    card.appendChild(mo);
+    mw.appendChild(mo); card.appendChild(mw);
 
     const st=document.createElement("div"); st.className="st"; st.dataset.i=i;
     card.appendChild(st);
@@ -2134,7 +2265,7 @@ function openPicker(pi, slot, preId){
 let lockY = 0;
 function lockScroll(){
   const open = !$("sheet").hidden || !$("psheet").hidden || !$("asheet").hidden
-            || !$("gsheet").hidden || !$("esheet").hidden;
+            || !$("gsheet").hidden || !$("esheet").hidden || !$("ssheet").hidden;
   const was = document.body.classList.contains("sheet-open");
   if (open === was) return;
   if (open){
@@ -2233,6 +2364,7 @@ document.addEventListener("keydown", e=>{
   if (pick) closePicker(); else if (preFor != null) closePreset();
   else if (!$("asheet").hidden) closeArchive();
   else if (!$("gsheet").hidden) closeGuide();
+  else if (!$("ssheet").hidden) closeSeason();
   else if (!$("esheet").hidden) closeEff();
 });
 $("arBtn").addEventListener("click", openArchive);
@@ -2271,6 +2403,17 @@ $("ordBtn").addEventListener("click", ()=>{
   $("ordBtn").textContent = ordMode ? "순서 끝내기" : "순서 편집";
   renderBoard();
 });
+$("seBtn").addEventListener("click", openSeason);
+$("seClose").addEventListener("click", closeSeason);
+$("sveil").addEventListener("click", closeSeason);
+$("seOpen").addEventListener("click", ()=>{
+  const ed = $("seEdit"), sb = $("seSave");
+  const show = ed.hidden;
+  ed.hidden = !show; sb.hidden = !show;
+  $("seOpen").textContent = show ? "수정 접기" : "직접 수정 (관리자)";
+  if (show) ed.focus();
+});
+$("seSave").addEventListener("click", saveSeason);
 $("preSort").addEventListener("change", e=>{ preSort = e.target.value; renderPresets(); });
 $("rSort").addEventListener("change", e=>{ rSort = e.target.value; renderRoster(); });
 $("editBtn").addEventListener("click", ()=>{
