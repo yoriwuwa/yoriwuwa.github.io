@@ -647,7 +647,7 @@ body.sheet-open{position:fixed;left:0;right:0;width:100%;overflow:hidden}
         <tr><td class="k">빈 자리</td><td>자리를 비워둔 프리셋은 그 자리를 건드리지 않습니다</td></tr>
         <tr><td class="k">구성 고치기</td><td>상단 <b>프리셋</b>에서 자리 버튼을 눌러 한 명씩 교체. 선택창에서 비우면 그 자리는 건드리지 않는 프리셋이 됩니다</td></tr>
         <tr><td class="k">시즌에서 만들기</td><td>시즌 기록에서 보관 시즌을 펼치면 <b>이 시즌 편성을 프리셋으로</b>. 이미 같은 구성이 있으면 건너뜁니다</td></tr>
-        <tr><td class="k">정렬</td><td>내 순서 / 지난 시즌 점수순 / 이름순. 점수는 가장 최근 보관 시즌에서 그 구성이 낸 값입니다</td></tr>
+        <tr><td class="k">정렬</td><td>내 순서 / 지난 시즌 점수순 / COST 높은순 · 낮은순 / 이름순. 점수는 가장 최근 보관 시즌에서 그 구성이 낸 값입니다</td></tr>
         <tr><td class="k">시즌 보관</td><td>그때의 COST까지 같이 굳습니다. 나중에 돌파를 더 해도 과거 기록은 그대로</td></tr>
         <tr><td class="k">편성 비우기</td><td>파티만 비웁니다. 프리셋과 명부는 남습니다</td></tr>
       </tbody></table>
@@ -713,6 +713,8 @@ body.sheet-open{position:fixed;left:0;right:0;width:100%;overflow:hidden}
       <select class="rsort" id="preSort" title="프리셋 정렬">
         <option value="ord">내 순서</option>
         <option value="score" id="preSortScore">지난 시즌 점수순</option>
+        <option value="chi">COST 높은순</option>
+        <option value="clo">COST 낮은순</option>
         <option value="name">이름순</option>
       </select>
     </div>
@@ -1462,6 +1464,11 @@ const preOrder = () => {
   if (preSort === "score"){
     const a = lastArchive();
     return ids.sort((x,y)=> preScoreOf(presets[y],a) - preScoreOf(presets[x],a)
+                           || (presets[x].name||"").localeCompare(presets[y].name||"","ko"));
+  }
+  if (preSort === "chi" || preSort === "clo"){
+    const sign = preSort === "chi" ? -1 : 1;
+    return ids.sort((x,y)=> sign * (preCost(presets[x]) - preCost(presets[y]))
                            || (presets[x].name||"").localeCompare(presets[y].name||"","ko"));
   }
   if (preSort === "name")
