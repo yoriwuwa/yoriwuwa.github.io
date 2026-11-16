@@ -81,6 +81,21 @@ input{font:inherit;color:inherit}
 .sec-hd h2{font-size:.82rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
   font-family:var(--mono);color:var(--dim)}
 .sec-hd span{font-size:.72rem;color:var(--faint);font-family:var(--mono)}
+.pre-top{display:flex;align-items:center;gap:8px}
+.pre-top .pre-hd{flex:1;margin:0}
+/* 프리셋 자리 바꾸기 버튼 */
+.pslot{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap}
+.pslot button{flex:1 1 30%;min-width:0;font:inherit;font-size:.7rem;padding:4px 6px;
+  border-radius:6px;border:1px solid var(--line);background:var(--sunk);color:var(--dim);
+  cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left}
+.pslot button:hover{border-color:var(--accent);color:var(--fg)}
+.pslot button.none{border-style:dashed;color:var(--faint)}
+.pre-last{font-size:.66rem;color:var(--gold);font-family:var(--mono);margin-top:4px}
+.ar-load.alt{border-color:var(--line);color:var(--dim);margin-bottom:6px}
+.ar-load.alt:hover{border-color:var(--accent);color:var(--accent)}
+.rsort{margin-left:auto;font:inherit;font-size:.68rem;background:var(--sunk);color:var(--dim);
+  border:1px solid var(--line);border-radius:7px;padding:3px 6px;cursor:pointer}
+.rsort:hover{border-color:var(--accent);color:var(--fg)}
 
 /* ── 파티 카드 ── */
 .board{display:flex;flex-direction:column;gap:6px}
@@ -152,6 +167,14 @@ input{font:inherit;color:inherit}
   color:var(--fg);letter-spacing:.01em;font-variant-numeric:tabular-nums}
 .score::placeholder{color:var(--faint);font-weight:400;font-size:.8rem;letter-spacing:0}
 .score:focus{border-color:var(--accent);background:var(--surface);outline:none}
+/* 접대 — 카드와 보스 디버프를 몰아준 파티. 어느 자리에 몰아줬는지 남겨둔다 */
+.elwrap{grid-area:el;min-width:0}
+.elwrap .el-chip,.elwrap .pre-btn{grid-area:auto;width:100%;display:block}
+.vipb{margin-top:4px;width:100%;font:inherit;font-size:.62rem;font-weight:600;
+  padding:2px 0;border-radius:999px;border:1px dashed var(--line);
+  background:none;color:var(--faint);cursor:pointer;letter-spacing:.02em}
+.vipb:hover{border-color:var(--gold);color:var(--gold)}
+.vipb.on{border-style:solid;border-color:var(--gold);color:var(--gold);background:var(--gold-bg)}
 .ptcz{grid-area:cz;font-family:var(--mono);font-size:.92rem;font-weight:600;
   font-variant-numeric:tabular-nums;color:var(--accent);text-align:right;white-space:nowrap}
 .ptcz.zero{color:var(--faint)}
@@ -183,6 +206,10 @@ input{font:inherit;color:inherit}
   max-height:calc(100vh - 40px);display:flex;flex-direction:column}
 @media(max-width:980px){.roster{position:static;max-height:none}}
 .r-list{overflow-y:auto;margin:0 -5px;padding:0 5px}
+/* 끌어다 놓기 — 명부에서 슬롯으로, 슬롯끼리 자리 바꾸기 */
+.r[draggable="true"]{cursor:grab}
+.r.dragging,.slot.dragging{opacity:.45}
+.slot.drop{border:1px dashed var(--accent);background:var(--accent-soft)}
 .r-grp{font-family:var(--mono);font-size:.66rem;letter-spacing:.09em;color:var(--faint);
   padding:11px 2px 5px;position:sticky;top:0;background:var(--surface);z-index:1}
 .r-grp.first{padding-top:2px}
@@ -417,6 +444,8 @@ body.sheet-open{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 .ef-r b{display:block;font-family:"IBM Plex Mono",monospace;font-size:.86rem;
   font-weight:600;color:var(--fg);letter-spacing:-.01em}
 .ef-r span{font-size:.68rem;color:var(--faint);font-family:"IBM Plex Mono",monospace}
+.ef-vip{flex:0 0 auto;font-size:.6rem;font-weight:700;padding:1px 6px;border-radius:999px;
+  border:1px solid var(--gold);color:var(--gold);background:var(--gold-bg)}
 .flash{position:fixed;left:50%;transform:translateX(-50%);bottom:22px;z-index:60;
   background:var(--fg);color:var(--bg);font-size:.78rem;padding:9px 16px;border-radius:999px;
   box-shadow:0 6px 24px rgba(0,0,0,.26)}
@@ -462,7 +491,14 @@ body.sheet-open{position:fixed;left:0;right:0;width:100%;overflow:hidden}
     </section>
 
     <aside class="roster">
-      <div class="sec-hd"><h2>피로도 명부</h2><span id="rosterSub"></span></div>
+      <div class="sec-hd"><h2>피로도 명부</h2><span id="rosterSub"></span>
+        <select class="rsort" id="rSort" title="명부 정렬">
+          <option value="el">속성별</option>
+          <option value="cost">COST 높은순</option>
+          <option value="left">남은 피로도순</option>
+          <option value="name">이름순</option>
+        </select>
+      </div>
       <div class="r-list" id="rlist"></div>
     </aside>
   </div>
@@ -537,11 +573,23 @@ body.sheet-open{position:fixed;left:0;right:0;width:100%;overflow:hidden}
         <tr><td class="k">복합</td><td>2번에 <b>1번 자리</b>를 가진 딜러가 들어가고 1번과 속성이 다를 때. 치샤처럼 자리가 2번뿐인 딜러는 투딜로 세지 않습니다. 방랑자는 포지션마다 속성이 달라 상시 복합</td></tr>
       </tbody></table>
 
+      <h4>편성 조작</h4>
+      <table><tbody>
+        <tr><td class="k">넣기</td><td>빈 칸을 눌러 선택창에서 고르거나, 명부에서 캐릭터를 <b>끌어다</b> 자리에 놓는다</td></tr>
+        <tr><td class="k">자리 바꾸기</td><td>슬롯의 캐릭터를 다른 슬롯으로 끌면 서로 맞바뀐다. 빈 자리로 끌면 옮겨진다</td></tr>
+        <tr><td class="k">명부 정렬</td><td>속성별 / COST 높은순 / 남은 피로도순 / 이름순</td></tr>
+        <tr><td class="k">접대</td><td>카드와 보스 디버프를 몰아준 파티 표시. 속성칸 아래 버튼으로 켜고 끈다</td></tr>
+      </tbody></table>
+      <p class="gnote">끌어다 놓기는 마우스에서만 됩니다. 폰에서는 칸을 눌러 선택창을 쓰시면 됩니다.</p>
+
       <h4>프리셋 · 기록</h4>
       <table><tbody>
         <tr><td class="k">저장</td><td><b>파티 N</b> 글자 — 저장과 불러오기 모두</td></tr>
         <tr><td class="k">불러오기</td><td>속성칸 — 비었으면 <b>프리셋</b> 버튼, 찼으면 속성칩. 점수·메모는 그대로</td></tr>
         <tr><td class="k">빈 자리</td><td>자리를 비워둔 프리셋은 그 자리를 건드리지 않습니다</td></tr>
+        <tr><td class="k">구성 고치기</td><td>상단 <b>프리셋</b>에서 자리 버튼을 눌러 한 명씩 교체. 선택창에서 비우면 그 자리는 건드리지 않는 프리셋이 됩니다</td></tr>
+        <tr><td class="k">시즌에서 만들기</td><td>시즌 기록에서 보관 시즌을 펼치면 <b>이 시즌 편성을 프리셋으로</b>. 이미 같은 구성이 있으면 건너뜁니다</td></tr>
+        <tr><td class="k">정렬</td><td>내 순서 / 지난 시즌 점수순 / 이름순. 점수는 가장 최근 보관 시즌에서 그 구성이 낸 값입니다</td></tr>
         <tr><td class="k">시즌 보관</td><td>그때의 COST까지 같이 굳습니다. 나중에 돌파를 더 해도 과거 기록은 그대로</td></tr>
         <tr><td class="k">편성 비우기</td><td>파티만 비웁니다. 프리셋과 명부는 남습니다</td></tr>
       </tbody></table>
@@ -602,7 +650,14 @@ body.sheet-open{position:fixed;left:0;right:0;width:100%;overflow:hidden}
       <input class="q" id="preName" placeholder="프리셋 이름 — 예: 카절복" autocomplete="off">
       <button id="preSave">저장</button>
     </div>
-    <div class="pre-hd" id="preHd">저장된 프리셋 — 누르면 이 파티에 넣습니다</div>
+    <div class="pre-top">
+      <span class="pre-hd" id="preHd">저장된 프리셋 — 누르면 이 파티에 넣습니다</span>
+      <select class="rsort" id="preSort" title="프리셋 정렬">
+        <option value="ord">내 순서</option>
+        <option value="score" id="preSortScore">지난 시즌 점수순</option>
+        <option value="name">이름순</option>
+      </select>
+    </div>
     <div class="p-list" id="prelist"></div>
   </div>
 </div>
@@ -651,6 +706,7 @@ const BASE = [
 ["카카루","5성","전도","딜러","1번",0,1,1,"공명해방딜러"],
 ["상리요","5성","전도","딜러","1번",0,1,1,"공명해방딜러"],
 ["쇄명","5성","전도","버퍼","2번",0,1,1,"합일 서브딜러/버퍼"],
+["릴리","5성","회절","딜러","1번",0,1,1,""],
 ["레베카","5성","전도","버퍼","2번",0,1,1,"버퍼(해킹)"],
 ["루미","4성","전도","버퍼","2번",0,1,1,"버퍼(공명스킬)"],
 ["음림","5성","전도","버퍼","2번",0,1,1,"버퍼(공명해방)"],
@@ -734,8 +790,12 @@ let over = {};              // name -> {s,r,f}
 let U = "";
 let db = null, canWrite = true, editMode = false;
 let ordMode = false, suspendSync = false, drag = null;
+/* 명부 정렬 — 속성별이 기본, 나머지는 한 줄로 쭉 편다 */
+let rSort = "el";
 let archives = {}, arOpen = null, arArmed = false, arLoadArm = null;   // 보관한 시즌 / 펼친 항목 / 비우기 확인단계
-let presets = {}, preFor = null, preMode = "party", suspendPre = false;   // 프리셋 저장소 / 지금 프리셋을 넣을 파티 번호
+let presets = {}, preFor = null, preMode = "party", suspendPre = false;
+/* 프리셋 정렬 — 내 순서(ord)가 기본, 지난 시즌 점수순으로도 볼 수 있다 */
+let preSort = "ord";   // 프리셋 저장소 / 지금 프리셋을 넣을 파티 번호
 let pick = null;            // {pi, slot}
 
 const $ = id => document.getElementById(id);
@@ -947,7 +1007,7 @@ const TOUR = [
   { k:".sum", h:"한눈에 보는 요약",
     b:"점수 총합과 최고 파티, 채운 팀 수, 투입 COST가 자동으로 계산됩니다. 아래에서 뭘 고치든 바로 따라 바뀝니다." },
   { k:"#board .pt .s-d", h:"캐릭터 넣기",
-    b:"칸을 누르면 선택창이 열립니다. 이름 일부는 물론 <b>ㅎㅇㅋ</b>처럼 초성만 쳐도 찾아집니다. 피로도보다 많이 내보내면 그 줄에 경고가 뜹니다." },
+    b:"칸을 누르면 선택창이 열립니다. 이름 일부는 물론 <b>ㅎㅇㅋ</b>처럼 초성만 쳐도 찾아집니다. 오른쪽 명부에서 <b>끌어다 놓아도</b> 됩니다. 피로도보다 많이 내보내면 그 줄에 경고가 뜹니다." },
   { k:"#board .pt .score", h:"점수는 적는 즉시 저장",
     b:"게임에서 나온 파티 점수를 그대로 적으면 됩니다. 저장 버튼은 없습니다 — 칸을 벗어나는 순간 기록됩니다." },
   { k:"#board .pt .ptcz", h:"파티 COST",
@@ -956,10 +1016,10 @@ const TOUR = [
     b:"‘2R 보스1~3’처럼 어느 구간을 맡았는지 적어둡니다. 다음 시즌에 순서를 다시 짤 때 가장 쓸모 있는 기록입니다." },
   { k:"#board .pt .pt-no", h:"프리셋 저장은 여기",
     b:"<b>파티 N</b> 글자를 누르면 지금 편성을 이름 붙여 저장하거나, 저장해둔 프리셋을 불러올 수 있습니다." },
-  { k:"#board .pt .pre-btn, #board .pt .el-chip", h:"속성칸은 불러오기 전용",
-    b:"비어 있으면 <b>프리셋</b> 버튼이고, 차 있으면 속성칩입니다. 어느 쪽이든 누르면 프리셋으로 그 파티를 갈아끼웁니다 — 점수와 메모는 그대로 남습니다." },
+  { k:"#board .pt .elwrap", h:"속성칸과 접대",
+    b:"비어 있으면 <b>프리셋</b> 버튼, 차 있으면 속성칩입니다. 누르면 프리셋으로 그 파티를 갈아끼웁니다 — 점수와 메모는 그대로 남습니다. 아래 <b>접대</b>는 카드·디버프를 몰아준 파티에 켜두는 표시입니다." },
   { k:"#preBtn", h:"프리셋 목록",
-    b:"저장한 프리셋을 한곳에서 봅니다. <b>▲▼</b>로 순서를 바꾸고 이름을 고치거나 지울 수 있습니다. 이미 같은 구성으로 편성해둔 프리셋은 흐리게 표시됩니다." },
+    b:"자리 버튼을 눌러 구성을 한 명씩 고칠 수 있고, <b>지난 시즌 점수순</b>으로 줄 세울 수 있습니다. 시즌 기록에서 <b>이 시즌 편성을 프리셋으로</b>를 누르면 지난 편성이 통째로 들어옵니다 — 신규 캐릭만 몇 자리 고쳐 쓰면 됩니다." },
   { k:"#efBtn", h:"COST 대비 효율",
     b:"파티마다 점수 ÷ COST를 매겨 줄 세웁니다. 보관한 시즌도 고를 수 있고, 그때 굳힌 COST로 계산하니 지금 돌파를 더 해도 과거 수치는 그대로입니다." },
   { k:"#arBtn", h:"시즌 기록",
@@ -969,7 +1029,7 @@ const TOUR = [
   { k:"#editBtn", h:"명부 편집",
     b:"돌파·재련·무기 등급·피로도를 고칩니다. 아직 없는 캐릭은 <b>없음</b>을 눌러 미보유로 두면 피로도·COST 합계와 선택창에서 빠집니다." },
   { k:".roster", h:"피로도 명부",
-    b:"캐릭마다 쓸 수 있는 횟수와 남은 횟수입니다. 다 쓰면 <b>소진</b>으로 흐려집니다. 피로도 총합 ÷ 3을 내림한 값이 슬롯 수가 됩니다." },
+    b:"캐릭마다 쓸 수 있는 횟수와 남은 횟수입니다. 다 쓰면 <b>소진</b>으로 흐려집니다. 피로도 총합 ÷ 3을 내림한 값이 슬롯 수가 됩니다. 오른쪽 위에서 <b>COST 높은순·남은 피로도순</b>으로 정렬할 수 있습니다." },
   { k:"#gdBtn", h:"다 봤습니다",
     b:"투자 표기와 COST 계산 규칙은 <b>규칙</b>에 정리돼 있습니다. 밝기는 <b>다크</b>로 바꾸고, 이 안내는 <b>사용법</b>으로 언제든 다시 열 수 있습니다." }
 ];
@@ -1075,6 +1135,7 @@ function snapshot(){
     const row = { c };
     SLOTKEY.forEach(k=>{ if (p[k]) row[k] = p[k]; });
     if (p.score) row.score = p.score;
+    if (p.vip) row.vip = 1;
     if (p.memo) row.memo = p.memo;
     out[String(i)] = row;
     names.forEach(nm=>seen.add(nm));
@@ -1098,7 +1159,7 @@ function effData(){
     const rows = Object.keys(a.parties).map(k=>{
       const p = a.parties[k];
       return { i:Number(k), names:SLOTKEY.map(x=>p[x]).filter(Boolean),
-               score:Number(p.score)||0, c:Number(p.c)||0 };
+               score:Number(p.score)||0, c:Number(p.c)||0, vip:!!p.vip };
     });
     return { rows, total:Number(a.total)||0, cost:Number(a.cost)||0 };
   }
@@ -1110,7 +1171,7 @@ function effData(){
     if (!names.length && !sc) continue;
     names.forEach(n=>seen.add(n));
     total += sc;
-    rows.push({ i, names, score:sc, c:partyCost(p) });
+    rows.push({ i, names, score:sc, c:partyCost(p), vip:!!P(i).vip });
   }
   let cost = 0; seen.forEach(n=>{ cost += unitCost(n); });
   return { rows, total, cost };
@@ -1167,10 +1228,15 @@ function renderEff(){
     const mid = document.createElement("div");
     const t = document.createElement("div"); t.className="ef-t";
     const b1 = document.createElement("b"); b1.textContent = "파티 " + r.i;
+    t.appendChild(b1);
+    if (r.vip){
+      const v = document.createElement("span"); v.className="ef-vip";
+      v.textContent = "접대"; t.appendChild(v);
+    }
     const nm = document.createElement("span"); nm.className="ef-nm";
     nm.textContent = r.names.length ? r.names.join(" · ") : "빈 파티";
     nm.title = nm.textContent;
-    t.append(b1, nm);
+    t.appendChild(nm);
     const bar = document.createElement("div"); bar.className="ef-bar";
     const fill = document.createElement("i");
     fill.style.width = (top ? Math.max(2, r.eff / top * 100) : 0) + "%";
@@ -1251,6 +1317,12 @@ function renderArchives(){
         mk("c", num(pr.c || 0));
         det.appendChild(line);
       });
+      const pb = document.createElement("button");
+      pb.className = "ar-load alt";
+      pb.textContent = "이 시즌 편성을 프리셋으로";
+      pb.title = "중복은 건너뜁니다";
+      pb.addEventListener("click", ()=>presetsFromArchive(id));
+      det.appendChild(pb);
       const lb = document.createElement("button");
       lb.className = "ar-load" + (arLoadArm === id ? " arm" : "");
       lb.textContent = arLoadArm === id
@@ -1293,6 +1365,7 @@ async function loadArchive(id){
     const src = a.parties[k], row = {};
     SLOTKEY.forEach(sk=>{ if (src[sk]) row[sk] = src[sk]; });
     if (src.score) row.score = src.score;
+    if (src.vip) row.vip = 1;
     if (src.memo) row.memo = src.memo;
     next[k] = row; touch.add(k);
   });
@@ -1320,10 +1393,20 @@ async function clearBoard(){
 
 /* ───────── 프리셋 ─────────
    자주 쓰는 3인 조합을 저장해두고 아무 파티에나 한 번에 넣는다. */
-const preOrder = () => Object.keys(presets).sort((a,b)=>{
-  const A = presets[a], B = presets[b];
-  return (A.ord != null ? A.ord : (A.at||0)) - (B.ord != null ? B.ord : (B.at||0));
-});
+const preOrder = () => {
+  const ids = Object.keys(presets);
+  if (preSort === "score"){
+    const a = lastArchive();
+    return ids.sort((x,y)=> preScoreOf(presets[y],a) - preScoreOf(presets[x],a)
+                           || (presets[x].name||"").localeCompare(presets[y].name||"","ko"));
+  }
+  if (preSort === "name")
+    return ids.sort((x,y)=>(presets[x].name||"").localeCompare(presets[y].name||"","ko"));
+  return ids.sort((x,y)=>{
+    const A = presets[x], B = presets[y];
+    return (A.ord != null ? A.ord : (A.at||0)) - (B.ord != null ? B.ord : (B.at||0));
+  });
+};
 /* 이미 같은 구성으로 편성된 파티가 있으면 쓴 것으로 본다 */
 const preUsed = pr => {
   const ks = SLOTKEY.filter(k => pr[k]);
@@ -1344,6 +1427,65 @@ async function renamePreset(id, name){
   try { await db.doc(U+"presets/"+id).set(presets[id]); } catch(e){}
   suspendPre = false;
 }
+/* 프리셋의 한 자리를 바꾼다. 비우면 그 자리를 건드리지 않는 프리셋이 된다. */
+async function editPreset(id, slot, name){
+  if (!presets[id]) return;
+  const next = Object.assign({}, presets[id]);
+  if (name) next[slot] = name; else delete next[slot];
+  presets[id] = next; renderPresets();
+  if (!db) return;
+  suspendPre = true;
+  try { await db.doc(U+"presets/"+id).set(next); } catch(e){ flash("저장하지 못했습니다"); }
+  suspendPre = false;
+}
+
+/* 지난 시즌에서 이 구성이 낸 점수 — 프리셋을 점수순으로 줄 세울 때 쓴다 */
+/* 점수가 들어 있는 가장 최근 보관 시즌 — 빈 시즌은 건너뛴다 */
+const lastArchive = () => {
+  const ids = arOrder();
+  for (const k of ids) if ((Number(archives[k].total) || 0) > 0) return archives[k];
+  return ids.length ? archives[ids[0]] : null;
+};
+function preScoreOf(pr, a){
+  if (!a || !a.parties) return 0;
+  const ks = SLOTKEY.filter(k => pr[k]);
+  if (!ks.length) return 0;
+  let best = 0;
+  Object.keys(a.parties).forEach(k=>{
+    const q = a.parties[k];
+    if (ks.every(x => q[x] === pr[x])) best = Math.max(best, Number(q.score)||0);
+  });
+  return best;
+}
+
+/* 보관한 시즌의 편성을 통째로 프리셋으로 — 다음 시즌은 몇 자리만 고쳐 쓰면 된다 */
+async function presetsFromArchive(id){
+  const a = archives[id]; if (!a || !a.parties) return;
+  const have = new Set(Object.keys(presets).map(k =>
+    SLOTKEY.map(x => presets[k][x] || "").join("|")));
+  const made = [];
+  let ord = Object.keys(presets).length;
+  Object.keys(a.parties).sort((x,y)=>(+x)-(+y)).forEach(k=>{
+    const q = a.parties[k], names = SLOTKEY.map(x=>q[x]).filter(Boolean);
+    if (names.length < 2) return;
+    const key = SLOTKEY.map(x => q[x] || "").join("|");
+    if (have.has(key)) return;
+    have.add(key);
+    const pid = "pr" + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+    const row = { name: names.join("·"), at: Date.now(), ord: ord++ };
+    SLOTKEY.forEach(x=>{ if (q[x]) row[x] = q[x]; });
+    presets[pid] = row; made.push(pid);
+  });
+  if (!made.length){ flash("이미 다 들어 있습니다"); return; }
+  renderPresets();
+  if (db){
+    suspendPre = true;
+    for (const k of made){ try { await db.doc(U+"presets/"+k).set(presets[k]); } catch(e){} }
+    suspendPre = false;
+  }
+  flash(made.length + "개를 프리셋으로 만들었습니다");
+}
+
 async function movePreset(id, dir){
   const ids = preOrder(), i = ids.indexOf(id), j = i + dir;
   if (i < 0 || j < 0 || j >= ids.length) return;
@@ -1369,8 +1511,11 @@ function openPreset(pi, loadOnly){
   $("preName").value = has.length ? has.join("·") : "";
   $("preSave").disabled = !has.length;
   document.querySelector(".pre-save").hidden = (preMode !== "party");
+  $("preSort").value = preSort;
+  { const a = lastArchive(), o = $("preSortScore");
+    if (o) o.textContent = a && a.name ? "「" + a.name + "」 점수순" : "지난 시즌 점수순"; }
   $("preHd").textContent = (preMode === "manage")
-    ? "순서를 바꾸거나 지울 수 있습니다 — 흐린 것은 이미 편성된 조합"
+    ? "자리를 눌러 구성을 고칩니다 — 흐린 것은 이미 편성된 조합"
     : "저장된 프리셋 — 누르면 이 파티에 넣습니다";
   $("psheet").hidden = false; lockScroll();
   renderPresets();
@@ -1413,10 +1558,30 @@ function renderPresets(){
     }
     const c = document.createElement("span"); c.className = "pc";
     c.textContent = num(preCost(pr)); c.title = "COST"; b.appendChild(c);
-    const m = document.createElement("span"); m.className = "pm";
-    m.textContent = SLOTKEY.map((k,i)=> SLOTPOS[i].replace("번","") + " " + (pr[k] || "—"))
-                      .join("  ·  ");
-    b.appendChild(m);
+    if (manage){
+      /* 자리를 눌러 구성을 고친다 — 선택창에서 비우면 그 자리는 건드리지 않는 프리셋이 된다 */
+      const row = document.createElement("div"); row.className = "pslot";
+      SLOTKEY.forEach((k,i)=>{
+        const sb = document.createElement("button");
+        sb.className = pr[k] ? "" : "none";
+        sb.textContent = SLOTPOS[i].replace("번","") + " " + (pr[k] || "비움");
+        sb.title = SLOTNAME[i] + " 자리 바꾸기";
+        sb.addEventListener("click", ()=>openPicker(null, k, id));
+        row.appendChild(sb);
+      });
+      b.appendChild(row);
+      const sc = preScoreOf(pr, lastArchive());
+      if (sc){
+        const l = document.createElement("div"); l.className = "pre-last";
+        l.textContent = "지난 시즌 " + sc.toLocaleString("en-US") + "점";
+        b.appendChild(l);
+      }
+    } else {
+      const m = document.createElement("span"); m.className = "pm";
+      m.textContent = SLOTKEY.map((k,i)=> SLOTPOS[i].replace("번","") + " " + (pr[k] || "—"))
+                        .join("  ·  ");
+      b.appendChild(m);
+    }
     if (!manage) b.addEventListener("click", ()=>applyPreset(id));
     const x = document.createElement("button"); x.className = "pre-x";
     x.textContent = "✕"; x.title = "프리셋 삭제";
@@ -1475,6 +1640,32 @@ function applyTheme(t){
 async function saveTheme(){
   if (!db) return;
   try { await db.doc(U+"config/prefs").set({ theme }); } catch(e){}
+}
+
+/* ── 끌어다 놓기 ── */
+let dragName = null, dragFrom = null;
+const clearDrop = () => {
+  document.querySelectorAll(".slot.drop").forEach(e=>e.classList.remove("drop"));
+  dragName = null; dragFrom = null;
+};
+/* 명부에서 끌어온 캐릭은 그 자리에 넣고, 슬롯끼리는 서로 자리를 바꾼다 */
+function dropInto(pi, slot){
+  const name = dragName, from = dragFrom;
+  if (!name){ clearDrop(); return; }
+  if (from && from.pi === pi && from.slot === slot){ clearDrop(); return; }
+  const dst = String(pi), here = P(pi)[slot] || "";
+  parties[dst] = Object.assign({}, parties[dst]);
+  parties[dst][slot] = name;
+  const touched = [pi];
+  if (from){
+    const src = String(from.pi);
+    parties[src] = Object.assign({}, parties[src]);
+    if (here) parties[src][from.slot] = here;        // 맞바꾸기
+    else delete parties[src][from.slot];
+    if (from.pi !== pi) touched.push(from.pi);
+  }
+  clearDrop(); render();
+  touched.forEach(saveParty);
 }
 
 /* ── 명부에 캐릭터 추가 (관리자) ── */
@@ -1555,7 +1746,7 @@ async function saveRoster(){
 function elStyle(el){ return "color:var("+ELV[el]+")"; }
 /* 초상 — 보유 캐릭은 인게임 공명자 카드를 잘라 쓴다.
    방랑자(속성 가변)와 미보유 캐릭은 속성 큐브로 대체. */
-const PORTRAIT = {"플로로": 1, "루파": 2, "카르티시아": 3, "샤콘": 4, "젠니": 5, "칸타렐라": 6, "브렌트": 7, "페비": 8, "로코코": 9, "카를로타": 10, "카멜리아": 11, "파수인": 12, "상리요": 13, "절지": 14, "장리": 15, "금희": 16, "음림": 17, "기염": 18, "카카루": 19, "앙코": 20, "히유키": 22, "청초": 23, "벨리나": 24, "여우의 별자리": 25, "경연": 26, "수수": 27, "양양(현령)": 28, "루실라": 29, "루시": 30, "레베카": 31, "데니아": 32, "시그리카": 33, "루크": 34, "에이메스": 35, "모니에": 36, "린네": 37, "치사": 38, "구원": 39, "갈브레나": 40, "유노": 41, "아우구스타": 42, "복링": 43, "루미": 44, "산화": 45, "모르테피": 46, "감심": 47, "설지": 48, "연무": 49, "양양": 50, "알토": 51, "능양": 52, "단근": 53, "도기": 54, "치샤": 55, "유호": 56, "쇄명": 57};
+const PORTRAIT = {"플로로": 1, "루파": 2, "카르티시아": 3, "샤콘": 4, "젠니": 5, "칸타렐라": 6, "브렌트": 7, "페비": 8, "로코코": 9, "카를로타": 10, "카멜리아": 11, "파수인": 12, "상리요": 13, "절지": 14, "장리": 15, "금희": 16, "음림": 17, "기염": 18, "카카루": 19, "앙코": 20, "히유키": 22, "청초": 23, "벨리나": 24, "여우의 별자리": 25, "경연": 26, "수수": 27, "양양(현령)": 28, "루실라": 29, "루시": 30, "레베카": 31, "데니아": 32, "시그리카": 33, "루크": 34, "에이메스": 35, "모니에": 36, "린네": 37, "치사": 38, "구원": 39, "갈브레나": 40, "유노": 41, "아우구스타": 42, "복링": 43, "루미": 44, "산화": 45, "모르테피": 46, "감심": 47, "설지": 48, "연무": 49, "양양": 50, "알토": 51, "능양": 52, "단근": 53, "도기": 54, "치샤": 55, "유호": 56, "쇄명": 57, "릴리": 58};
 const SVGNS = "http://www.w3.org/2000/svg";
 const FACES = [["M12 1.5 22 7.2 12 12.9 2 7.2Z", "1",   "--el-spectro"],
                ["M2 7.2 12 12.9 12 23.5 2 17.8Z", ".62", "--el-conducto"],
@@ -1656,6 +1847,7 @@ function renderBoard(){
       no.addEventListener("click", ()=>openPreset(i));
     }
     card.appendChild(no);
+    const elw = document.createElement("div"); elw.className = "elwrap";
     if (el){
       // 속성이 떠 있어도 누르면 프리셋으로 이 파티를 갈아끼울 수 있다
       const chip=document.createElement("button"); chip.type="button";
@@ -1664,14 +1856,25 @@ function renderBoard(){
       chip.textContent = el;
       chip.title = "프리셋으로 이 파티 교체";
       chip.addEventListener("click", ()=>openPreset(i, true));
-      card.appendChild(chip); }
+      elw.appendChild(chip); }
     else {
       // 아직 대표 속성이 없는 자리 — 프리셋 불러오기 버튼으로 쓴다
       const pb=document.createElement("button"); pb.className="pre-btn";
       pb.textContent="프리셋"; pb.title="저장된 프리셋 불러오기";
       pb.addEventListener("click", ()=>openPreset(i, true));
-      card.appendChild(pb);
+      elw.appendChild(pb);
     }
+    const vb = document.createElement("button"); vb.type="button";
+    vb.className = "vipb" + (p.vip ? " on" : "");
+    vb.textContent = "접대";
+    vb.title = "카드와 보스 디버프를 몰아준 파티로 표시";
+    vb.addEventListener("click", ()=>{
+      const id=String(i); parties[id]=Object.assign({},parties[id]);
+      if (parties[id].vip) delete parties[id].vip; else parties[id].vip = 1;
+      saveParty(i); render();
+    });
+    elw.appendChild(vb);
+    card.appendChild(elw);
     const sc=document.createElement("input"); sc.className="score"; sc.type="text";
     sc.inputMode="numeric"; sc.placeholder="점수"; sc.id="sc"+i;
     sc.value = p.score ? p.score.toLocaleString("en-US") : "";
@@ -1692,6 +1895,26 @@ function renderBoard(){
       const nm = p[k], b = document.createElement("button");
       b.className = "slot s-" + k + (nm ? "" : " empty");
       b.addEventListener("click", ()=>openPicker(i,k));
+      if (nm && !ordMode){
+        b.draggable = true;
+        b.addEventListener("dragstart", e=>{
+          dragName = nm; dragFrom = { pi:i, slot:k };
+          b.classList.add("dragging");
+          e.dataTransfer.effectAllowed = "move";
+          e.dataTransfer.setData("text/plain", nm);
+        });
+        b.addEventListener("dragend", ()=>{ b.classList.remove("dragging"); clearDrop(); });
+      }
+      b.addEventListener("dragover", e=>{
+        if (!dragName) return;
+        e.preventDefault(); e.dataTransfer.dropEffect = dragFrom ? "move" : "copy";
+        b.classList.add("drop");
+      });
+      b.addEventListener("dragleave", ()=>b.classList.remove("drop"));
+      b.addEventListener("drop", e=>{
+        e.preventDefault(); b.classList.remove("drop");
+        dropInto(i, k);
+      });
       // 이름이 길어 잘리는 경우를 위해 전체 정보를 툴팁으로
       b.title = (nm && C[nm])
         ? nm + " · " + specOf(nm) + " · COST " + num(unitCost(nm))
@@ -1753,7 +1976,8 @@ function renderRoster(){
   const tf = totalFat();
   $("rosterSub").textContent = "피로도 " + (tf - placedCount()) + " / " + tf + " 남음";
 
-  const groups = [["피로도 2회", ORDER.filter(n=>fatOf(n)>=2)]];
+  const groups = [];
+  if (rSort === "el") groups.push(["피로도 2회", ORDER.filter(n=>fatOf(n)>=2)]);
   if (editMode && isAdmin){
     const f = document.createElement("div"); f.className = "addc";
     const mk = (tag, cls, ph, opts) => {
@@ -1781,10 +2005,22 @@ function renderRoster(){
     });
     box.appendChild(f);
   }
-  ELORD.forEach(el=>{
-    const list = ORDER.filter(n=>C[n] && C[n].el===el && fatOf(n)<2);
-    if (list.length) groups.push([el, list]);
-  });
+  if (rSort === "el"){
+    ELORD.forEach(el=>{
+      const list = ORDER.filter(n=>C[n] && C[n].el===el && fatOf(n)<2);
+      if (list.length) groups.push([el, list]);
+    });
+  } else {
+    const all = ORDER.filter(n=>C[n]).slice();
+    const key = {
+      cost: (a,b)=> unitCost(b) - unitCost(a) || a.localeCompare(b,"ko"),
+      left: (a,b)=> (fatOf(b)-usedOf(b)) - (fatOf(a)-usedOf(a))
+                    || unitCost(b) - unitCost(a) || a.localeCompare(b,"ko"),
+      name: (a,b)=> a.localeCompare(b,"ko")
+    }[rSort];
+    all.sort(key);
+    groups.push([{cost:"COST 높은순", left:"남은 피로도순", name:"이름순"}[rSort], all]);
+  }
 
   groups.forEach(([label,list],gi)=>{
     if (!list.length) return;
@@ -1809,6 +2045,18 @@ function renderRoster(){
       row.className = "r" + (ownOf(n)||left===0?(left===0?" done":""):" done")
         + (left<0?" over":"") + (f>=2?" two":"") + (ownOf(n)?"":" unowned");
       row.style.cssText = elStyle(c.el);
+      /* 편집 중이 아니고 보유한 캐릭이면 끌 수 있다 — 피로도 초과는 경고로 알린다 */
+      if (!editMode && ownOf(n)){
+        row.draggable = true;
+        row.title = (row.title || n) + " — 끌어서 파티 자리에 놓을 수 있습니다";
+        row.addEventListener("dragstart", e=>{
+          dragName = n; dragFrom = null;
+          row.classList.add("dragging");
+          e.dataTransfer.effectAllowed = "copyMove";
+          e.dataTransfer.setData("text/plain", n);
+        });
+        row.addEventListener("dragend", ()=>{ row.classList.remove("dragging"); clearDrop(); });
+      }
       row.appendChild(avatarFor(n, c.el));
       const nm=document.createElement("span"); nm.className="nm"; nm.textContent=n;
       nm.title = n + (c.note ? " — " + c.note : ""); row.appendChild(nm);
@@ -1872,9 +2120,12 @@ function renderRoster(){
 }
 
 /* ───────── 피커 ───────── */
-function openPicker(pi, slot){
-  pick = {pi, slot};
-  $("pTitle").textContent = "파티 "+pi+" · "+SLOTNAME[SLOTKEY.indexOf(slot)]+" 자리";
+function openPicker(pi, slot, preId){
+  pick = {pi, slot, pre: preId || null};
+  const pos = SLOTNAME[SLOTKEY.indexOf(slot)] + " 자리";
+  $("pTitle").textContent = preId
+    ? ((presets[preId] && presets[preId].name) || "프리셋") + " · " + pos
+    : "파티 " + pi + " · " + pos;
   $("q").value = "";
   $("sheet").hidden = false; lockScroll();
   renderPicker();
@@ -1914,7 +2165,7 @@ const isCho = s => { const t = normCho(s); return t.length>0 && t.split("").ever
 
 function renderPicker(){
   const list = $("plist"), q = $("q").value.trim().toLowerCase();
-  const cur = P(pick.pi)[pick.slot];
+  const cur = pick.pre ? ((presets[pick.pre] || {})[pick.slot] || "") : P(pick.pi)[pick.slot];
   const wantRole = ["딜러","버퍼","힐러"][SLOTKEY.indexOf(pick.slot)];
   list.textContent = "";
 
@@ -1959,12 +2210,14 @@ function renderPicker(){
   });
 }
 function choose(name){
+  if (pick.pre){ editPreset(pick.pre, pick.slot, name); closePicker(); return; }
   const id = String(pick.pi);
   parties[id] = Object.assign({}, parties[id]);
   parties[id][pick.slot] = name;
   saveParty(pick.pi); closePicker(); render();
 }
 function clearSlot(){
+  if (pick.pre){ editPreset(pick.pre, pick.slot, null); closePicker(); return; }
   const id = String(pick.pi);
   parties[id] = Object.assign({}, parties[id]);
   delete parties[id][pick.slot];
@@ -2018,6 +2271,8 @@ $("ordBtn").addEventListener("click", ()=>{
   $("ordBtn").textContent = ordMode ? "순서 끝내기" : "순서 편집";
   renderBoard();
 });
+$("preSort").addEventListener("change", e=>{ preSort = e.target.value; renderPresets(); });
+$("rSort").addEventListener("change", e=>{ rSort = e.target.value; renderRoster(); });
 $("editBtn").addEventListener("click", ()=>{
   editMode = !editMode;
   $("editBtn").setAttribute("aria-pressed", String(editMode));
