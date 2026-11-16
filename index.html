@@ -42,6 +42,7 @@ body.light{
 body{background:var(--bg);color:var(--fg);font-family:var(--sans);margin:0;
   padding-inline:16px;padding-block:0 48px;-webkit-font-smoothing:antialiased}
 .wrap{max-width:1280px;margin:0 auto}
+
 h1,h2,h3{margin:0;text-wrap:balance}
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 input{font:inherit;color:inherit}
@@ -73,6 +74,24 @@ input{font:inherit;color:inherit}
 /* ── 본문 2단 ── */
 .cols{display:grid;grid-template-columns:minmax(0,1fr) 332px;gap:22px;align-items:start}
 @media(max-width:980px){.cols{grid-template-columns:1fr}}
+/* 화면이 넓으면 왼쪽 빈 공간에 시즌 정보를 세워 둔다 */
+.sepan{display:none}
+@media(min-width:1600px){
+  .wrap{max-width:1660px}
+  .cols{grid-template-columns:300px minmax(0,1fr) 332px}
+  .sepan{display:block;background:var(--surface);border:1px solid var(--line);
+    border-radius:11px;padding:13px 14px;position:sticky;top:12px;
+    max-height:calc(100vh - 24px);overflow-y:auto;overscroll-behavior:contain}
+}
+.sepan h3{font-family:var(--mono);font-size:.66rem;letter-spacing:.09em;color:var(--faint);
+  text-transform:uppercase;margin:14px 0 6px}
+.sepan h3:first-child{margin-top:0}
+.sepan .se-row{padding:6px 0}
+.sepan .se-t b{font-size:.76rem}
+.sepan .se-d{font-size:.68rem;line-height:1.55}
+.sepan .se-more{margin-top:12px;width:100%;font-size:.7rem;color:var(--dim);
+  border:1px solid var(--line);border-radius:7px;padding:6px;background:var(--sunk)}
+.sepan .se-more:hover{border-color:var(--accent);color:var(--accent)}
 @media(max-width:900px){.sum{grid-template-columns:repeat(3,1fr)}
   .sum div:last-child{grid-column:span 2}}
 @media(max-width:560px){.sum{grid-template-columns:repeat(2,1fr)}}
@@ -498,6 +517,7 @@ body.sheet-open{position:fixed;left:0;right:0;width:100%;overflow:hidden}
   </dl>
 
   <div class="cols">
+    <aside class="sepan" id="sePanel"></aside>
     <section>
       <div class="sec-hd"><h2>파티</h2><span id="boardSub">3인 고정 편성</span></div>
       <div class="bhd grid8">
@@ -1710,11 +1730,12 @@ const cardName = i => { const c = SE().cards[i-1]; return c ? c.n : ("카드 " +
 function openSeason(){ $("ssheet").hidden = false; lockScroll(); renderSeason(); }
 function closeSeason(){ $("ssheet").hidden = true; lockScroll(); }
 
-function renderSeason(){
-  const box = $("sebox"); box.textContent = "";
+function seasonInto(box, compact){
+  box.textContent = "";
   const d = SE();
   const sec = (title, note) => {
-    const h = document.createElement("h4"); h.textContent = title; box.appendChild(h);
+    const h = document.createElement(compact ? "h3" : "h4");
+    h.textContent = title; box.appendChild(h);
     if (note){ const n=document.createElement("p"); n.className="gnote"; n.textContent=note;
       box.appendChild(n); }
   };
@@ -1730,11 +1751,24 @@ function renderSeason(){
     p2.textContent = body || "특성 없음";
     w.appendChild(p2); box.appendChild(w);
   };
-  sec("보스", "라운드마다 이 순서로 돌고, 돌 때마다 체력과 점수 배율이 오릅니다.");
+  sec("보스", compact ? "" : "라운드마다 이 순서로 돌고, 돌 때마다 체력과 점수 배율이 오릅니다.");
   d.bosses.forEach((b,i)=> line((i+1) + ". " + b.n, b.el, b.d, b.el));
-  sec("버프 카드", "파티마다 하나를 고릅니다. 파티 줄의 카드 칸에서 지정하면 시즌 기록에 같이 남습니다.");
+  sec("버프 카드", compact ? "" : "파티마다 하나를 고릅니다. 파티 줄의 카드 칸에서 지정하면 시즌 기록에 같이 남습니다.");
   d.cards.forEach((c,i)=> line((i+1) + ". " + c.n, null, c.d));
+}
 
+/* 넓은 화면의 왼쪽 기둥 */
+function renderSePanel(){
+  const box = $("sePanel"); if (!box) return;
+  seasonInto(box, true);
+  const b = document.createElement("button"); b.className = "se-more";
+  b.textContent = "시즌 정보 창 열기";
+  b.addEventListener("click", openSeason);
+  box.appendChild(b);
+}
+
+function renderSeason(){
+  seasonInto($("sebox"), false);
   /* 직접 수정은 관리자에게만, 그것도 눌렀을 때만 펼친다 */
   const ed = $("seEdit"), sb = $("seSave"), ob = $("seOpen");
   ob.hidden = !isAdmin;
@@ -1901,7 +1935,8 @@ function partyEl(p){
   return e1;
 }
 
-function render(){ renderSummary(); renderBoard(); renderRoster(); if (pick) renderPicker(); }
+function render(){ renderSummary(); renderBoard(); renderRoster(); renderSePanel();
+  if (pick) renderPicker(); }
 
 function renderSummary(){
   let total=0, best=0, bestI=0;
