@@ -61,7 +61,7 @@ input{font:inherit;color:inherit}
 .ghost[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
 
 /* ── 요약 스트립 ── */
-.sum{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--line);
+.sum{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--line);
   border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:22px}
 .sum div{background:var(--surface);padding:13px 16px;min-width:0}
 .sum dt{font-size:.68rem;color:var(--faint);letter-spacing:.09em;text-transform:uppercase;
@@ -99,7 +99,9 @@ input{font:inherit;color:inherit}
 .sec-hd{display:flex;align-items:baseline;gap:10px;margin-bottom:11px}
 .sec-hd h2{font-size:.82rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
   font-family:var(--mono);color:var(--dim)}
-.sec-hd span{font-size:.72rem;color:var(--faint);font-family:var(--mono)}
+.sec-hd h2{white-space:nowrap}
+.sec-hd span{font-size:.72rem;color:var(--faint);font-family:var(--mono);
+  min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .se-row{padding:7px 0;border-top:1px solid var(--line)}
 .se-t{display:flex;align-items:baseline;gap:7px}
 .se-t b{font-size:.8rem;font-weight:600;color:var(--fg)}
@@ -111,21 +113,21 @@ input{font:inherit;color:inherit}
   font-size:.7rem;line-height:1.5;resize:vertical}
 .seed[hidden]{display:none}
 /* 파티 줄의 카드 칸 */
-.mowrap{grid-area:mo;display:flex;gap:5px;min-width:0}
-.mowrap .memo{grid-area:auto;flex:1 1 auto;min-width:0}
-.cardsel{flex:0 0 auto;width:62px;font:inherit;font-size:.68rem;background:var(--sunk);
+.cardsel{grid-area:cd;width:100%;font:inherit;font-size:.68rem;background:var(--sunk);
   color:var(--dim);border:1px solid var(--line);border-radius:6px;padding:0 2px;cursor:pointer}
 .cardsel.on{border-color:var(--accent);color:var(--accent)}
 .pre-top{display:flex;align-items:center;gap:8px}
 .pre-top .pre-hd{flex:1;margin:0}
 /* 프리셋 자리 바꾸기 버튼 */
-.pslot{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap}
-.pslot button{flex:1 1 30%;min-width:0;font:inherit;font-size:.7rem;padding:4px 6px;
+.pslot{grid-column:1/3;display:flex;gap:4px;margin-top:5px;flex-wrap:wrap}
+.pslot button{flex:1 1 30%;min-width:0;font:inherit;font-size:.7rem;padding:3px 6px;
   border-radius:6px;border:1px solid var(--line);background:var(--sunk);color:var(--dim);
-  cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left}
+  cursor:pointer;display:flex;align-items:center;gap:5px;text-align:left}
+.pslot .psn{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pslot .av,.pslot .cube{width:18px;height:18px}
 .pslot button:hover{border-color:var(--accent);color:var(--fg)}
 .pslot button.none{border-style:dashed;color:var(--faint)}
-.pre-last{font-size:.66rem;color:var(--gold);font-family:var(--mono);margin-top:4px}
+.pre-last{grid-column:1/3;font-size:.66rem;color:var(--gold);font-family:var(--mono);margin-top:4px}
 .ar-load.alt{border-color:var(--line);color:var(--dim);margin-bottom:6px}
 .ar-load.alt:hover{border-color:var(--accent);color:var(--accent)}
 .rsort{margin-left:auto;font:inherit;font-size:.68rem;background:var(--sunk);color:var(--dim);
@@ -135,21 +137,20 @@ input{font:inherit;color:inherit}
 /* ── 파티 카드 ── */
 .board{display:flex;flex-direction:column;gap:6px}
 .grid8{display:grid;gap:7px 9px;align-items:center;min-width:0;
-  grid-template-columns:50px 58px minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 88px 50px minmax(0,1.5fr);
-  grid-template-areas:"no el d b h sc cz mo" "st st st st st st st st"}
+  grid-template-columns:50px 58px minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 92px 54px 90px;
+  grid-template-areas:"no el d b h sc cz cd" "st st st st st st st st"}
 .bhd{padding:0 11px 5px;font-family:var(--mono);font-size:.66rem;letter-spacing:.05em;
   color:var(--faint)}
 .bhd span:nth-child(6),.bhd span:nth-child(7){text-align:right}
 .pt{background:var(--surface);border:1px solid var(--line);border-radius:9px;
   border-left:3px solid var(--line);padding:7px 11px}
 @media(max-width:1180px){
-  .grid8{grid-template-columns:50px 54px repeat(3,minmax(0,1fr)) 84px 52px;
-      grid-template-areas:"no el d b h sc cz" "mo mo mo mo mo mo mo" "st st st st st st st"}
-  .bhd span:nth-child(8){display:none}
+  .grid8{grid-template-columns:50px 54px repeat(3,minmax(0,1fr)) 84px 52px 86px;
+      grid-template-areas:"no el d b h sc cz cd" "st st st st st st st st"}
 }
 @media(max-width:620px){
   .grid8{grid-template-columns:repeat(3,minmax(0,1fr));
-      grid-template-areas:"no el sc" "d b h" "mo mo cz" "st st st"}
+      grid-template-areas:"no el sc" "d b h" "cd cd cz" "st st st"}
   .bhd{display:none}
   .slot .tag{display:none}
 }
@@ -171,7 +172,7 @@ input{font:inherit;color:inherit}
   border:1px solid var(--line);border-radius:6px;padding:3px 6px;
   justify-self:start;width:max-content}
 .board.ordmode .pt.dragging .pt-no{cursor:grabbing}
-.board.ordmode .slot,.board.ordmode .score,.board.ordmode .memo{pointer-events:none;opacity:.72}
+.board.ordmode .slot,.board.ordmode .score,.board.ordmode .cardsel{pointer-events:none;opacity:.72}
 .board.ordmode .pt-no{display:flex;align-items:center;gap:5px}
 .pt-n{font-size:.8rem;color:var(--fg);min-width:1.4em;text-align:right}
 .mv{display:flex;flex-direction:column;gap:2px}
@@ -229,11 +230,25 @@ input{font:inherit;color:inherit}
 .slot .av,.slot .cube{width:22px;height:22px}
 .r .av,.r .cube{width:22px;height:22px}
 .cand .av,.cand .cube{width:26px;height:26px}
-.memo{grid-area:mo;width:100%;background:var(--sunk);border:1px solid var(--line);
-  border-radius:6px;padding:4px 8px;font-size:.76rem;color:var(--dim)}
-.memo::placeholder{color:var(--faint)}
-.st{grid-area:st;font-size:.7rem;font-family:var(--mono);color:var(--danger);font-weight:600;
-  padding-top:1px}
+.st{grid-area:st;font-size:.7rem;font-family:var(--mono);font-weight:600;
+  padding-top:3px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pg{display:flex;align-items:center;gap:4px;flex:0 0 auto}
+.pg label{font-size:.63rem;font-weight:500;color:var(--faint);letter-spacing:.03em}
+.pgi{width:30px;background:var(--sunk);border:1px solid var(--line);border-radius:5px;
+  padding:2px 4px;font-family:var(--mono);font-size:.7rem;text-align:center;color:var(--fg)}
+.pgi.w{width:40px}
+.pgi:focus{border-color:var(--accent);outline:none}
+.pgu{font-size:.63rem;color:var(--faint);margin-left:-2px}
+.libsel{background:var(--sunk);border:1px solid var(--line);border-radius:5px;
+  padding:1px 2px;font-family:var(--mono);font-size:.68rem;color:var(--dim);cursor:pointer}
+.libsel.on{border-color:var(--accent);color:var(--accent)}
+.pgnote{width:92px;margin-left:6px;background:var(--sunk);border:1px solid var(--line);
+  border-radius:5px;padding:2px 6px;font-size:.68rem;color:var(--dim)}
+.pgnote:focus{border-color:var(--accent);color:var(--fg);outline:none}
+.pgnote::placeholder{color:var(--faint)}
+.pgout{color:var(--accent);flex:1 1 auto;min-width:0}
+.pgout.back{color:var(--danger)}
+.pgwarn{color:var(--danger);flex:0 0 auto}
 
 /* ── 명부 ── */
 .roster{background:var(--surface);border:1px solid var(--line);border-radius:11px;
@@ -307,7 +322,8 @@ body.sheet-open{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 .p-x{color:var(--dim);font-size:1.2rem;line-height:1;padding:4px 8px}
 .q{width:100%;background:var(--sunk);border:1px solid var(--line);border-radius:8px;
   padding:9px 11px;font-size:.88rem;margin-bottom:10px}
-.p-list{overflow-y:auto;overscroll-behavior:contain;display:grid;gap:3px;margin:0 -4px;padding:0 4px}
+.p-list{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;
+  display:grid;gap:3px;align-content:start;margin:0 -4px;padding:0 4px}
 /* ── 로그인 게이트 ── */
 .gate{position:fixed;inset:0;z-index:90;background:var(--bg);display:flex;
   align-items:center;justify-content:center;padding:24px}
@@ -369,7 +385,7 @@ body.sheet-open{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 .pre-hd{font-size:.66rem;letter-spacing:.06em;color:var(--faint);padding:2px 2px 6px}
 .pre-wrap{display:flex;gap:5px;align-items:stretch}
 .pre-mv{flex:0 0 auto;display:flex;flex-direction:column;gap:2px;justify-content:center}
-.pre-mv button{width:22px;flex:1 1 0;min-height:15px;font-size:.5rem;line-height:1;
+.pre-mv button{width:22px;flex:0 0 auto;height:19px;font-size:.5rem;line-height:1;
   border:1px solid var(--line);border-radius:4px;background:var(--sunk);color:var(--dim)}
 .pre-mv button:hover:not([disabled]){border-color:var(--accent);color:var(--accent)}
 .pre-mv button[disabled]{opacity:.28}
@@ -400,8 +416,10 @@ body.sheet-open{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 .cand:hover{background:var(--accent-soft)}
 .cand .nm{font-size:.86rem;font-weight:500;color:var(--fg);min-width:0;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cand .ft{font-size:.68rem;font-family:var(--mono);color:var(--dim);
-  max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cand .ft{display:flex;gap:4px;flex-wrap:nowrap;overflow:hidden;max-width:250px}
+.tg{flex:0 0 auto;font-size:.63rem;font-weight:600;line-height:1.5;padding:1px 8px;
+  border-radius:999px;border:1px solid currentColor;opacity:.75;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100px}
 .cand .rm{font-family:var(--mono);font-size:.68rem;color:var(--ok);flex:0 0 auto}
 .cand.out{opacity:.4}
 .cand.out .rm{color:var(--faint)}
@@ -479,6 +497,8 @@ body.sheet-open{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 .ef-r b{display:block;font-family:"IBM Plex Mono",monospace;font-size:.86rem;
   font-weight:600;color:var(--fg);letter-spacing:-.01em}
 .ef-r span{font-size:.68rem;color:var(--faint);font-family:"IBM Plex Mono",monospace}
+.ef-lib{flex:0 0 auto;font-size:.6rem;font-weight:600;padding:1px 6px;border-radius:999px;
+  border:1px solid var(--line);color:var(--dim)}
 .ef-vip{flex:0 0 auto;font-size:.6rem;font-weight:700;padding:1px 6px;border-radius:999px;
   border:1px solid var(--gold);color:var(--gold);background:var(--gold-bg)}
 .flash{position:fixed;left:50%;transform:translateX(-50%);bottom:22px;z-index:60;
@@ -514,6 +534,7 @@ body.sheet-open{position:fixed;left:0;right:0;width:100%;overflow:hidden}
     <div class="mvp"><dt>MVP 파티</dt><dd id="sMvp">—</dd></div>
     <div class="cap"><dt>편성</dt><dd id="sCap">—</dd></div>
     <div class="cap"><dt>투입 COST</dt><dd id="sCost">—</dd></div>
+    <div class="cap"><dt>도달</dt><dd id="sReach">—</dd></div>
   </dl>
 
   <div class="cols">
@@ -522,7 +543,7 @@ body.sheet-open{position:fixed;left:0;right:0;width:100%;overflow:hidden}
       <div class="sec-hd"><h2>파티</h2><span id="boardSub">3인 고정 편성</span></div>
       <div class="bhd grid8">
         <span>파티</span><span>속성</span><span>1번 딜러</span><span>2번 버퍼</span>
-        <span>3번 힐러</span><span>점수</span><span>COST</span><span>메모</span>
+        <span>3번 힐러</span><span>점수</span><span>COST</span><span>카드</span>
       </div>
       <div class="board" id="board"></div>
     </section>
@@ -614,7 +635,7 @@ body.sheet-open{position:fixed;left:0;right:0;width:100%;overflow:hidden}
       <h4>피로도와 슬롯</h4>
       <table><tbody>
         <tr><td class="k">슬롯 수</td><td>피로도 총합 ÷ 3을 내림. 3명이 모이지 않는 자투리 피로도는 출전할 수 없습니다</td></tr>
-        <tr><td class="k">피로도 2회</td><td>범용 힐러 수수·모니에·파수인·벨리나·복링·설지와 릴리는 상시, 루실라는 이번 시즌 한정</td></tr>
+        <tr><td class="k">피로도 2회</td><td>퓨어 힐러만 2회 — 유호는 예외로 1회, 치사처럼 힐을 가진 서브딜러도 1회. 여기에 시즌마다 힐러가 아닌 캐릭 하나가 2회를 받는다(이번 시즌은 루실라)</td></tr>
         <tr><td class="k">보유 여부</td><td>명부 편집에서 <b>없음</b>을 누르면 미보유. 피로도·COST 합계와 선택창에서 빠집니다</td></tr>
       </tbody></table>
 
@@ -624,10 +645,32 @@ body.sheet-open{position:fixed;left:0;right:0;width:100%;overflow:hidden}
         <tr><td class="k">복합</td><td>2번에 <b>1번 자리</b>를 가진 딜러가 들어가고 1번과 속성이 다를 때. 치샤처럼 자리가 2번뿐인 딜러는 투딜로 세지 않습니다. 방랑자는 포지션마다 속성이 달라 상시 복합</td></tr>
       </tbody></table>
 
+      <h4>보스 진행</h4>
+      <table><tbody>
+        <tr><td class="k">적는 것</td><td>그 파티가 <b>끝낸 자리</b>만 적는다 — 라운드 · 보스 번호 · 그 보스를 깎은 %</td></tr>
+        <tr><td class="k">계산</td><td>앞 파티가 끝낸 자리에서 이어받는다. 두 자리의 차이가 그 파티가 처리한 양</td></tr>
+        <tr><td class="k">단위</td><td>보스 한 마리 = 100%. 라운드를 넘겼으면 <b>2R 63% · 3R 23%</b>처럼 라운드별로 쪼개 보여준다</td></tr>
+        <tr><td class="k">합산 안 함</td><td>라운드가 오르면 보스 체력도 오르므로 라운드끼리 더한 값은 뜻이 없다. 그래서 합계는 내지 않는다</td></tr>
+        <tr><td class="k">도달</td><td>상단 요약의 도달 칸은 가장 멀리 간 파티의 자리. 마우스를 올리면 표 기준 누적 점수가 뜬다</td></tr>
+        <tr><td class="k">표 점수</td><td>라운드별 보스 점수표로 환산한 값. <b>표 8,640 · 실제 +142</b>는 그 자리면 8,640점이어야 하는데 142점 더 받았다는 뜻</td></tr>
+        <tr><td class="k">해방</td><td>그 파티가 돌린 사이클 — <b>4</b> 기본 · <b>4.5</b> 추가 강공격이나 미완성 사이클 · <b>5</b> 고점. 같은 편성이라도 사이클이 다르면 점수가 달라지므로 점수를 비교할 때 같이 본다</td></tr>
+        <tr><td class="k">비고</td><td>계산에 쓰지 않는 메모. 캐릭마다 다른 지표를 적는 자리 — 히유키 <b>21거합</b>처럼</td></tr>
+      </tbody></table>
+      <p class="gnote">앞 파티보다 뒤 자리를 적으면 빨갛게 경고합니다. 중간 파티를 비워두면 그 앞의 적어둔 파티에서 이어받습니다.</p>
+
+      <h4>라운드별 보스 점수</h4>
+      <table><tbody>
+        <tr><td class="k m">1R</td><td>보스1~4 각 4,680 · 미믹 6,665 (라운드 합계 25,385)</td></tr>
+        <tr><td class="k m">2R</td><td>보스1~4 각 9,158 · 미믹 14,456 (51,088)</td></tr>
+        <tr><td class="k m">3R</td><td>보스1~4 각 20,222 · 미믹 23,239 (104,127)</td></tr>
+        <tr><td class="k m">4R</td><td>21,234 / 22,245 / 23,256 / 24,267 · 미믹 28,736 (119,738)</td></tr>
+      </tbody></table>
+      <p class="gnote"><b>미믹 처치 보너스 2,000점</b>은 위 미믹 값 안에 들어 있고, 계산할 때는 따로 뗀다 — 깎은 만큼은 비례로 나누되 보너스는 <b>잡은 파티가 통째로</b> 가져간다. 외부 자료(Slyraf 플래너) 기준이며 1~4라운드는 검증값, 5라운드 이후는 추정입니다. 3.7 총점 225,326이 이 표의 누적과 1,247점 안에서 맞아떨어져 그대로 쓰고 있습니다. 표에 없는 라운드는 4라운드 값으로 봅니다. 시즌 창에서 관리자가 고칠 수 있습니다.</p>
+
       <h4>시즌 보스와 카드</h4>
       <table><tbody>
         <tr><td class="k">보기</td><td>상단 <b>시즌</b> 버튼. 보스 5마리의 특성과 버프 카드 4종의 효과가 들어 있다</td></tr>
-        <tr><td class="k">카드 지정</td><td>파티 줄 메모 왼쪽의 <b>카드</b> 칸에서 그 파티가 고른 카드를 지정. 시즌 보관 시 같이 굳는다</td></tr>
+        <tr><td class="k">카드 지정</td><td>파티 줄 오른쪽 <b>카드</b> 칸에서 그 파티가 고른 카드를 지정. 시즌 보관 시 같이 굳는다</td></tr>
         <tr><td class="k">수정</td><td>관리자만. 시즌 창 아래 입력란에서 고치면 모두에게 반영된다</td></tr>
       </tbody></table>
 
@@ -738,64 +781,64 @@ body.sheet-open{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 <script>
 // name, star, element, role, seat, 돌파, 재련, 피로도, 비고
 const BASE = [
-["수수","5성","응결","힐러","3번",0,1,2,"힐러(이상)"],
-["모니에","5성","용융","힐러","3번",0,1,2,"힐러(파동/밀집)"],
-["파수인","5성","회절","힐러","3번",0,1,2,"힐러(범용, 크리티컬)"],
-["벨리나","5성","회절","힐러","3번",0,1,2,"힐러(범용)"],
-["복링","4성","전도","힐러","3번",6,1,2,"힐러(공명스킬)"],
-["설지","4성","응결","힐러","3번",6,5,2,"힐러(구버전 딜러용, 힐에코셋 공격력)"],
-["히유키","5성","응결","딜러","1번",0,1,1,"서리 이상딜러"],
-["카를로타","5성","응결","딜러","1번",0,1,1,"공명스킬딜러"],
-["능양","5성","응결","딜러","1번",0,1,1,"공명스킬딜러"],
-["루실라","5성","응결","버퍼","2번",0,1,2,"모드전환(서리/에코) · 시즌 한정 2회"],
-["절지","5성","응결","버퍼","2번",0,1,1,"버퍼(공명스킬)"],
-["산화","4성","응결","버퍼","2번",6,5,1,"버퍼(일반공격)"],
-["유호","4성","응결","힐러","3번",6,5,1,"힐러"],
-["경연","5성","용융","딜러","1번",0,1,1,"강공격딜러(HP+공격력 혼합)"],
-["에이메스","5성","용융","딜러","1번",0,1,1,"공명해방딜러(파동/이상)"],
-["갈브레나","5성","용융","딜러","1번",0,1,1,"강공격딜러"],
-["장리","5성","용융","딜러","1·2번",0,1,1,"공명스킬딜러"],
-["앙코","5성","용융","딜러","1번",0,1,1,"일반공격딜러"],
-["치샤","4성","용융","딜러","2번",6,5,1,"공명해방딜러"],
-["데니아","5성","용융","버퍼","1번",0,1,1,"모드전환(불꽃/밀집)"],
-["루파","5성","용융","버퍼","3번",0,1,1,"버퍼(일반공격)"],
-["브렌트","5성","용융","버퍼","2번",0,1,1,"버퍼(공명스킬)"],
-["모르테피","4성","용융","버퍼","2번",6,5,1,"버퍼(강공격)"],
-["여우의 별자리","5성","전도","딜러","1번",0,1,1,"전자(이상)딜러 · 합일 모드"],
-["아우구스타","5성","전도","딜러","1번",0,1,1,"강공격딜러"],
-["카카루","5성","전도","딜러","1번",0,1,1,"공명해방딜러"],
-["상리요","5성","전도","딜러","1번",0,1,1,"공명해방딜러"],
-["쇄명","5성","전도","버퍼","2번",0,1,1,"합일 서브딜러/버퍼"],
-["릴리","5성","회절","딜러","1번",0,1,2,"상시 2회"],
-["레베카","5성","전도","버퍼","2번",0,1,1,"버퍼(해킹)"],
-["루미","4성","전도","버퍼","2번",0,1,1,"버퍼(공명스킬)"],
-["음림","5성","전도","버퍼","2번",0,1,1,"버퍼(공명해방)"],
-["연무","4성","전도","버퍼","3번",6,5,1,"버퍼(힐에코셋 활용)"],
-["청초","5성","기류","딜러","1번",0,1,1,"밀집딜러"],
-["시그리카","5성","기류","딜러","1번",0,1,1,"에코딜러"],
-["카르티시아","5성","기류","딜러","1번",0,1,1,"풍식(이상)딜러"],
-["기염","5성","기류","딜러","1번",0,1,1,"강공격딜러"],
-["구원","5성","기류","버퍼","2번",0,1,1,"버퍼(에코)"],
-["유노","5성","기류","버퍼","2번",0,1,1,"버퍼(강공격)"],
-["샤콘","5성","기류","버퍼","2번",0,1,1,"버퍼(풍식)"],
-["감심","5성","기류","버퍼","2번",0,1,1,"버퍼(공명해방)"],
-["양양","4성","기류","버퍼","2·3번",6,5,1,"버퍼(견인, 공효회복)"],
-["알토","4성","기류","버퍼","2번",6,5,1,"버퍼(기류)"],
-["방랑자","5성","복합","힐러","3번",6,5,1,"포지션에 따라 속성 변경 · 전체에서 1회만"],
-["루시","5성","회절","딜러","1번",0,1,1,"강공격딜러(해킹)"],
-["루크","5성","회절","딜러","1번",0,1,1,"일반공격딜러(밀집)"],
-["젠니","5성","회절","딜러","1번",0,1,1,"강공격딜러(광학)"],
-["금희","5성","회절","딜러","1번",0,1,1,"공명스킬딜러"],
-["린네","5성","회절","버퍼","2번",0,1,1,"모드전환(파동/밀집)"],
-["페비","5성","회절","버퍼","2번",0,1,1,"버퍼(광학)"],
-["양양(현령)","5성","인멸","딜러","1번",0,1,1,"강공격딜러(암흑)"],
-["플로로","5성","인멸","딜러","1번",0,1,1,"공명스킬딜러(에코)"],
-["카멜리아","5성","인멸","딜러","1번",0,1,1,"일반공격딜러"],
-["칸타렐라","5성","인멸","버퍼","2번",0,1,1,"버퍼(공명스킬/에코)"],
-["로코코","5성","인멸","버퍼","2번",0,1,1,"버퍼(일반공격)"],
-["단근","4성","인멸","버퍼","2번",6,5,1,"버퍼(인멸피해)"],
-["도기","4성","인멸","버퍼","2번",6,5,1,"버퍼(공명스킬)"],
-["치사","5성","인멸","힐러","3·2번",0,1,1,"힐러(이상)"]
+["수수","5성","응결","힐러","3번",0,1,2,"이상 · 서리"],
+["모니에","5성","용융","힐러","3번",0,1,2,"파동 · 밀집"],
+["파수인","5성","회절","힐러","3번",0,1,2,"크리티컬"],
+["벨리나","5성","회절","힐러","3번",0,1,2,""],
+["복링","4성","전도","힐러","3번",6,1,2,"공명스킬"],
+["설지","4성","응결","힐러","3번",6,5,2,""],
+["히유키","5성","응결","딜러","1번",0,1,1,"서리 · 해방"],
+["카를로타","5성","응결","딜러","1번",0,1,1,"공명스킬"],
+["능양","5성","응결","딜러","1번",0,1,1,"공명스킬"],
+["루실라","5성","응결","버퍼","2번",0,1,2,"모드전환 · 서리 · 에코"],
+["절지","5성","응결","버퍼","2번",0,1,1,"공명스킬"],
+["산화","4성","응결","버퍼","2번",6,5,1,"일반공격"],
+["유호","4성","응결","힐러","3번",6,5,1,""],
+["경연","5성","용융","딜러","1번",0,1,1,"강공격 · HP+공격력"],
+["에이메스","5성","용융","딜러","1번",0,1,1,"모드전환 · 해방 · 파동 · 불꽃"],
+["갈브레나","5성","용융","딜러","1번",0,1,1,"강공격 · 에코"],
+["장리","5성","용융","딜러","1·2번",0,1,1,"공명스킬"],
+["앙코","5성","용융","딜러","1번",0,1,1,"일반공격"],
+["치샤","4성","용융","딜러","2번",6,5,1,"해방"],
+["데니아","5성","용융","버퍼","1번",0,1,1,"모드전환 · 불꽃 · 밀집"],
+["루파","5성","용융","버퍼","3번",0,1,1,"일반공격"],
+["브렌트","5성","용융","버퍼","2번",0,1,1,"공명스킬"],
+["모르테피","4성","용융","버퍼","2번",6,5,1,"강공격"],
+["여우의 별자리","5성","전도","딜러","1번",0,1,1,"모드전환 · 전자 · 합일"],
+["아우구스타","5성","전도","딜러","1번",0,1,1,"강공격"],
+["카카루","5성","전도","딜러","1번",0,1,1,"해방"],
+["상리요","5성","전도","딜러","1번",0,1,1,"해방"],
+["쇄명","5성","전도","버퍼","2번",0,1,1,"합일"],
+["릴리","5성","회절","힐러","3번",0,1,2,"합일 · 에코"],
+["레베카","5성","전도","버퍼","2번",0,1,1,"해킹"],
+["루미","4성","전도","버퍼","2번",0,1,1,"공명스킬"],
+["음림","5성","전도","버퍼","2번",0,1,1,"해방"],
+["연무","4성","전도","버퍼","3번",6,5,1,""],
+["청초","5성","기류","딜러","1번",0,1,1,"밀집"],
+["시그리카","5성","기류","딜러","1번",0,1,1,"에코"],
+["카르티시아","5성","기류","딜러","1번",0,1,1,"풍식 · 일반공격 · 해방"],
+["기염","5성","기류","딜러","1번",0,1,1,"강공격"],
+["구원","5성","기류","버퍼","2번",0,1,1,"에코"],
+["유노","5성","기류","버퍼","2번",0,1,1,"강공격"],
+["샤콘","5성","기류","버퍼","2번",0,1,1,"풍식"],
+["감심","5성","기류","버퍼","2번",0,1,1,"해방"],
+["양양","4성","기류","버퍼","2·3번",6,5,1,"공효회복"],
+["알토","4성","기류","버퍼","2번",6,5,1,"기류"],
+["방랑자","5성","복합","힐러","3번",6,5,1,"속성 변경"],
+["루시","5성","회절","딜러","1번",0,1,1,"강공격 · 해킹"],
+["루크","5성","회절","딜러","1번",0,1,1,"일반공격 · 밀집"],
+["젠니","5성","회절","딜러","1번",0,1,1,"강공격 · 광학"],
+["금희","5성","회절","딜러","1번",0,1,1,"공명스킬"],
+["린네","5성","회절","버퍼","2번",0,1,1,"모드전환 · 파동 · 밀집"],
+["페비","5성","회절","버퍼","2번",0,1,1,"광학"],
+["양양(현령)","5성","인멸","딜러","1번",0,1,1,"강공격 · 암흑"],
+["플로로","5성","인멸","딜러","1번",0,1,1,"공명스킬 · 에코"],
+["카멜리아","5성","인멸","딜러","1번",0,1,1,"일반공격"],
+["칸타렐라","5성","인멸","버퍼","2번",0,1,1,"공명스킬 · 에코"],
+["로코코","5성","인멸","버퍼","2번",0,1,1,"일반공격"],
+["단근","4성","인멸","버퍼","2번",6,5,1,"인멸"],
+["도기","4성","인멸","버퍼","2번",6,5,1,"공명스킬"],
+["치사","5성","인멸","힐러","3·2번",0,1,1,"이상 · 암흑"]
 ];
 const FIXED2 = new Set(["수수","모니에","파수인","벨리나","복링","설지"]);
 const ELV = {"응결":"--el-glacio","용융":"--el-fusion","전도":"--el-conducto",
@@ -843,7 +886,7 @@ const WEP0 = {
   "벨리나":"4성", "앙코":"4성", "감심":"4성", "능양":"4성", "카카루":"4성", "방랑자":"4성"
 };
 
-let parties = {};           // "1" -> {d,b,h,score,memo}
+let parties = {};           // "1" -> {d,b,h,score,card,rd,bs,pg}
 let over = {};              // name -> {s,r,f}
 /* 저장 경로 — 로그인한 사람의 영역. 보안 규칙이 남의 영역 접근을 막는다.
    명부 기본값과 캐릭터 사진은 페이지에 들어 있어 모두가 공유한다. */
@@ -1074,8 +1117,8 @@ const TOUR = [
     b:"게임에서 나온 파티 점수를 그대로 적으면 됩니다. 저장 버튼은 없습니다 — 칸을 벗어나는 순간 기록됩니다." },
   { k:"#board .pt .ptcz", h:"파티 COST",
     b:"그 파티에 들어간 투자 비용입니다. 돌파와 무기 등급으로 계산되며, 점수와 나란히 두면 가성비가 바로 보입니다." },
-  { k:"#board .pt .memo", h:"라운드 메모",
-    b:"‘2R 보스1~3’처럼 어느 구간을 맡았는지 적어둡니다. 다음 시즌에 순서를 다시 짤 때 가장 쓸모 있는 기록입니다." },
+  { k:"#board .pt .pg", h:"보스 진행",
+    b:"그 파티가 <b>끝낸 자리</b>만 적습니다 — 라운드, 보스 번호, 그 보스를 깎은 %. 앞 파티에서 이어받아 그 파티가 처리한 양이 오른쪽에 <b>2R 63% · 3R 23%</b>처럼 라운드별로 나옵니다. 보스 한 마리가 100%입니다. 옆의 <b>해방</b>은 그 파티가 돌린 사이클(4 · 4.5 · 5)입니다." },
   { k:"#board .pt .pt-no", h:"프리셋 저장은 여기",
     b:"<b>파티 N</b> 글자를 누르면 지금 편성을 이름 붙여 저장하거나, 저장해둔 프리셋을 불러올 수 있습니다." },
   { k:"#board .pt .elwrap", h:"속성칸과 접대",
@@ -1201,7 +1244,8 @@ function snapshot(){
     if (p.score) row.score = p.score;
     if (p.vip) row.vip = 1;
     if (p.card) row.card = p.card;
-    if (p.memo) row.memo = p.memo;
+    ["rd","bs","pg","lib","note"].forEach(k=>{ if (p[k] != null && p[k] !== "") row[k] = p[k]; });
+    if (p.memo) row.memo = p.memo;   // 옛 기록 보존
     out[String(i)] = row;
     names.forEach(nm=>seen.add(nm));
     total += sc; if (names.length) teams++;
@@ -1224,7 +1268,7 @@ function effData(){
     const rows = Object.keys(a.parties).map(k=>{
       const p = a.parties[k];
       return { i:Number(k), names:SLOTKEY.map(x=>p[x]).filter(Boolean),
-               score:Number(p.score)||0, c:Number(p.c)||0, vip:!!p.vip };
+               score:Number(p.score)||0, c:Number(p.c)||0, vip:!!p.vip, lib:p.lib||"" };
     });
     return { rows, total:Number(a.total)||0, cost:Number(a.cost)||0 };
   }
@@ -1236,7 +1280,7 @@ function effData(){
     if (!names.length && !sc) continue;
     names.forEach(n=>seen.add(n));
     total += sc;
-    rows.push({ i, names, score:sc, c:partyCost(p), vip:!!P(i).vip });
+    rows.push({ i, names, score:sc, c:partyCost(p), vip:!!P(i).vip, lib:P(i).lib||"" });
   }
   let cost = 0; seen.forEach(n=>{ cost += unitCost(n); });
   return { rows, total, cost };
@@ -1276,6 +1320,12 @@ function renderEff(){
   put("총 점수", d.total.toLocaleString());
   put("투입 COST", num(d.cost));
   put("COST당", (d.cost && d.total) ? Math.round(d.total/d.cost).toLocaleString() : "—");
+  if (effSrc === "now"){
+    let far = null; const m = maxParties();
+    for (let i=1;i<=m;i++){ const v = posOf(P(i)); if (v != null && (far == null || v > far)) far = v; }
+    const c = cumAt(far);
+    if (c != null) put("표 기준", Math.round(c).toLocaleString());
+  }
 
   const list = $("eflist"); list.textContent = "";
   if (!rows.length){
@@ -1297,6 +1347,10 @@ function renderEff(){
     if (r.vip){
       const v = document.createElement("span"); v.className="ef-vip";
       v.textContent = "접대"; t.appendChild(v);
+    }
+    if (r.lib){
+      const l = document.createElement("span"); l.className="ef-lib";
+      l.textContent = r.lib + "해방"; t.appendChild(l);
     }
     const nm = document.createElement("span"); nm.className="ef-nm";
     nm.textContent = r.names.length ? r.names.join(" · ") : "빈 파티";
@@ -1432,6 +1486,7 @@ async function loadArchive(id){
     if (src.score) row.score = src.score;
     if (src.vip) row.vip = 1;
     if (src.card) row.card = src.card;
+    ["rd","bs","pg","lib","note"].forEach(k=>{ if (src[k] != null && src[k] !== "") row[k] = src[k]; });
     if (src.memo) row.memo = src.memo;
     next[k] = row; touch.add(k);
   });
@@ -1501,8 +1556,11 @@ async function renamePreset(id, name){
 /* 프리셋의 한 자리를 바꾼다. 비우면 그 자리를 건드리지 않는 프리셋이 된다. */
 async function editPreset(id, slot, name){
   if (!presets[id]) return;
+  const auto = preNames(presets[id]).join("·");   // 고치기 전 구성으로 만든 이름
   const next = Object.assign({}, presets[id]);
   if (name) next[slot] = name; else delete next[slot];
+  /* 이름을 따로 지은 적이 없으면 새 구성으로 갈아준다 */
+  if (!next.name || next.name === auto) next.name = preNames(next).join("·");
   presets[id] = next; renderPresets();
   if (!db) return;
   suspendPre = true;
@@ -1593,7 +1651,6 @@ function openPreset(pi, loadOnly){
 }
 function closePreset(){ preFor = null; $("psheet").hidden = true; lockScroll(); }
 
-const PRE_VISIBLE = 10;   // 한 번에 보이는 프리셋 수 — 넘으면 스크롤
 function renderPresets(){
   const list = $("prelist"); list.textContent = ""; list.style.maxHeight = "";
   const ids = preOrder();
@@ -1635,7 +1692,10 @@ function renderPresets(){
       SLOTKEY.forEach((k,i)=>{
         const sb = document.createElement("button");
         sb.className = pr[k] ? "" : "none";
-        sb.textContent = SLOTPOS[i].replace("번","") + " " + (pr[k] || "비움");
+        if (pr[k] && C[pr[k]]) sb.appendChild(avatarFor(pr[k], C[pr[k]].el));
+        const sn = document.createElement("span"); sn.className = "psn";
+        sn.textContent = SLOTPOS[i].replace("번","") + " " + (pr[k] || "비움");
+        sb.appendChild(sn);
         sb.title = SLOTNAME[i] + " 자리 바꾸기";
         sb.addEventListener("click", ()=>openPicker(null, k, id));
         row.appendChild(sb);
@@ -1659,16 +1719,6 @@ function renderPresets(){
     x.addEventListener("click", ()=>removePreset(id));
     wrap.appendChild(b); wrap.appendChild(x); list.appendChild(wrap);
   });
-  // 10개를 넘으면 딱 10줄 높이로 잘라 스크롤시킨다. 모드마다 줄 높이가 달라 실측한다.
-  if (ids.length > PRE_VISIBLE){
-    requestAnimationFrame(()=>{
-      const rows = list.querySelectorAll(".pre-wrap");
-      if (rows.length <= PRE_VISIBLE) return;
-      const h = rows[0].getBoundingClientRect().height;
-      const gap = parseFloat(getComputedStyle(list).rowGap) || 0;
-      list.style.maxHeight = Math.round(h * PRE_VISIBLE + gap * (PRE_VISIBLE - 1)) + "px";
-    });
-  }
 }
 
 async function applyPreset(id){
@@ -1713,6 +1763,68 @@ async function saveTheme(){
   try { await db.doc(U+"config/prefs").set({ theme }); } catch(e){}
 }
 
+/* ───────── 보스 진행 ─────────
+   파티마다 "어디서 끝냈는지"만 적는다 — 라운드 · 보스 번호 · 그 보스를 깎은 %.
+   앞 파티가 끝낸 자리에서 이어받으므로, 두 자리의 차이가 그 파티가 처리한 양이다.
+   보스 한 마리를 100%로 센다. */
+const BOSSN = 5;
+function posOf(p){
+  const r = Number(p.rd)||0, b = Number(p.bs)||0;
+  if (!r || !b) return null;
+  const pc = Math.max(0, Math.min(100, Number(p.pg)||0));
+  return (r-1)*BOSSN + (b-1) + pc/100;
+}
+/* 앞쪽에서 가장 가까운, 자리를 적어둔 파티의 위치 */
+function prevPos(i){
+  for (let k = i-1; k >= 1; k--){ const v = posOf(P(k)); if (v != null) return v; }
+  return 0;
+}
+/* 구간을 라운드별로 쪼갠다 — [[라운드, 보스단위], …] */
+function splitRounds(from, to){
+  const out = [];
+  let a = from;
+  while (a < to - 1e-9){
+    const r = Math.floor(a / BOSSN + 1e-9) + 1;
+    const end = Math.min(to, r * BOSSN);
+    if (end - a > 1e-9) out.push([r, end - a]);
+    a = end;
+  }
+  return out;
+}
+/* 위치(보스 단위)를 표 기준 누적 점수로 바꾼다. 보스를 반만 깎았으면 점수도 절반. */
+function ptsRow(r){
+  const t = SE().pts; if (!Array.isArray(t) || !t.length) return null;
+  return t[Math.min(r, t.length) - 1] || null;
+}
+function cumAt(pos){
+  if (pos == null) return null;
+  const bonus = Number(SE().mimic) || 0;
+  let total = 0, left = pos, r = 1;
+  while (left > 1e-9){
+    const row = ptsRow(r); if (!row) return null;
+    const take = Math.min(left, BOSSN);
+    for (let i = 0; i < BOSSN; i++){
+      const part = Math.max(0, Math.min(1, take - i));
+      if (part <= 0) break;
+      const v = Number(row[i]) || 0;
+      if (i === BOSSN - 1){
+        /* 미믹 — 깎은 만큼은 비례로, 처치 보너스는 다 잡았을 때만 */
+        total += (v - bonus) * part;
+        if (part >= 1 - 1e-9) total += bonus;
+      } else total += v * part;
+    }
+    left -= take; r++;
+  }
+  return total;
+}
+const pctTxt = v => (Math.round(v * 1000) / 10).toFixed(1).replace(/\.0$/,"") + "%";
+function posTxt(v){
+  if (v == null) return "—";
+  const r = Math.floor(v / BOSSN) + 1, rest = v - (r-1)*BOSSN;
+  const b = Math.min(BOSSN, Math.floor(rest) + 1), pc = (rest - Math.floor(rest)) * 100;
+  return r + "R 보스" + b + " " + (Math.round(pc*10)/10) + "%";
+}
+
 /* ───────── 시즌 데이터 ─────────
    보스와 버프 카드는 모두에게 같으므로 공용으로 둔다. 관리자만 고칠 수 있다. */
 const SEASON_DEF = {
@@ -1723,6 +1835,16 @@ const SEASON_DEF = {
     { n:"시길룸",  el:"회절",   d:"" },
     { n:"미믹",    el:"무속성", d:"고정 보스 · 점수 배율 +0.1" }
   ],
+  /* 라운드별 보스 점수 — 보스1~4 · 미믹 순서. 외부 자료(Slyraf) 기준이며
+     3.7 총점 225,326이 이 표의 누적과 1,247점 안에서 맞았다. 표에 없는 라운드는 마지막 줄로 본다. */
+  pts: [
+    [ 4680,  4680,  4680,  4680,  6665],
+    [ 9158,  9158,  9158,  9158, 14456],
+    [20222, 20222, 20222, 20222, 23239],
+    [21234, 22245, 23256, 24267, 28736]
+  ],
+  /* 미믹 처치 보너스 — 깎은 만큼이 아니라 잡아야 받는 고정 점수라 따로 뗀다 */
+  mimic: 2000,
   cards: [
     { n:"공용강화", d:"받피증 20% · 해방피해 20%" },
     { n:"이상효과", d:"이상 추가 시 받피증 25% · 서리효과피해 80%" },
@@ -1793,6 +1915,17 @@ async function saveSeason(){
   if (!db) return;
   try { await db.doc("season/current").set(j); flash("시즌 정보를 저장했습니다"); }
   catch(e){ flash("관리자만 고칠 수 있습니다"); }
+}
+
+/* 비고를 태그로 쪼갠다 — 구분자는 · / , 와 괄호.
+   "모드전환(서리/에코) · 시즌 한정 2회" → 모드전환 · 서리 · 에코 · 시즌 한정 2회 */
+function tagsOf(note){
+  const all = String(note || "")
+    .replace(/[()[\]]/g, "·")
+    .split(/[·/,]/)
+    .map(t => t.trim())
+    .filter(Boolean);
+  return all;
 }
 
 /* ── 끌어다 놓기 ── */
@@ -1962,6 +2095,12 @@ function renderSummary(){
   let cost=0; placed.forEach(n=>{ cost += unitCost(n); });
   const pool = Object.keys(C).reduce((a,n)=>a+(ownOf(n)?unitCost(n):0),0);
   $("sCost").textContent = num(cost)+" / "+num(pool);
+  let far = null;
+  for (let i=1;i<=m;i++){ const v = posOf(P(i)); if (v != null && (far == null || v > far)) far = v; }
+  $("sReach").textContent = far == null ? "—" : posTxt(far);
+  { const c = cumAt(far);
+    $("sReach").title = c == null ? ""
+      : "표 기준 누적 " + Math.round(c).toLocaleString("en-US") + "점"; }
   $("boardSub").textContent = "3인 고정 · 슬롯 "+m+"개";
   window.__mvp = bestI;
 }
@@ -2090,7 +2229,6 @@ function renderBoard(){
     const cz=document.createElement("div"); cz.className="ptcz"; cz.dataset.c=i;
     card.appendChild(cz);
 
-    const mw = document.createElement("div"); mw.className = "mowrap";
     const cs = document.createElement("select");
     cs.className = "cardsel" + (p.card ? " on" : "");
     const none = document.createElement("option"); none.value=""; none.textContent="카드";
@@ -2108,16 +2246,57 @@ function renderBoard(){
       if (Number.isFinite(v)) parties[id].card = v; else delete parties[id].card;
       saveParty(i); render();
     });
-    mw.appendChild(cs);
-    const mo=document.createElement("input"); mo.className="memo"; mo.id="mo"+i;
-    mo.placeholder="메모"; mo.value = p.memo || "";
-    mo.addEventListener("input", ()=>{ const id=String(i);
-      parties[id]=Object.assign({},parties[id]);
-      if (mo.value) parties[id].memo = mo.value; else delete parties[id].memo; });
-    mo.addEventListener("change", ()=>saveParty(i));
-    mw.appendChild(mo); card.appendChild(mw);
+    card.appendChild(cs);
 
     const st=document.createElement("div"); st.className="st"; st.dataset.i=i;
+    const pgw = document.createElement("span"); pgw.className = "pg";
+    const mkPg = (key, lab, ph, wide) => {
+      const l = document.createElement("label"); l.textContent = lab; pgw.appendChild(l);
+      const e = document.createElement("input"); e.className = "pgi" + (wide ? " w" : "");
+      e.type = "text"; e.inputMode = "numeric"; e.placeholder = ph;
+      e.value = (p[key] != null && p[key] !== "") ? String(p[key]) : "";
+      e.addEventListener("input", ()=>{
+        const id=String(i); parties[id] = Object.assign({}, parties[id]);
+        const v = parseFloat(e.value.replace(/[^\d.]/g,""));
+        if (Number.isFinite(v)) parties[id][key] = v; else delete parties[id][key];
+        markCards(); renderSummary();
+      });
+      e.addEventListener("change", ()=>saveParty(i));
+      pgw.appendChild(e);
+    };
+    mkPg("rd", "라운드", "—");
+    mkPg("bs", "보스", "—");
+    mkPg("pg", "", "—", true);
+    const pu = document.createElement("span"); pu.className="pgu"; pu.textContent="%";
+    pgw.appendChild(pu);
+    /* 사이클 등급 — 같은 편성이라도 해방 횟수가 다르면 점수가 달라진다 */
+    const ll = document.createElement("label"); ll.textContent = "해방";
+    ll.style.marginLeft = "6px"; pgw.appendChild(ll);
+    const ls = document.createElement("select"); ls.className = "libsel" + (p.lib ? " on" : "");
+    [["", "—"], ["4", "4"], ["4.5", "4.5"], ["5", "5"]].forEach(([v,t])=>{
+      const o=document.createElement("option"); o.value=v; o.textContent=t; ls.appendChild(o);
+    });
+    ls.value = p.lib ? String(p.lib) : "";
+    ls.title = "이 파티가 돌린 사이클 — 4 기본 · 4.5 추가 강공격이나 미완성 사이클 · 5 고점";
+    ls.addEventListener("change", ()=>{
+      const id=String(i); parties[id]=Object.assign({},parties[id]);
+      if (ls.value) parties[id].lib = ls.value; else delete parties[id].lib;
+      saveParty(i); render();
+    });
+    pgw.appendChild(ls);
+    /* 예외적인 것만 적는 자리 — 히유키 거합 수처럼 캐릭마다 다른 지표 */
+    const nt = document.createElement("input"); nt.className = "pgnote"; nt.type = "text";
+    nt.placeholder = "비고"; nt.value = p.note || "";
+    nt.title = "계산에는 쓰지 않는 메모 — 예: 21거합";
+    nt.addEventListener("input", ()=>{
+      const id=String(i); parties[id]=Object.assign({},parties[id]);
+      if (nt.value) parties[id].note = nt.value; else delete parties[id].note;
+    });
+    nt.addEventListener("change", ()=>saveParty(i));
+    pgw.appendChild(nt);
+    st.appendChild(pgw);
+    const out = document.createElement("span"); out.className = "pgout"; st.appendChild(out);
+    const wn = document.createElement("span"); wn.className = "pgwarn"; st.appendChild(wn);
     card.appendChild(st);
     board.appendChild(card);
   }
@@ -2133,7 +2312,46 @@ function markCards(){
     const card = st.closest(".pt");
     card.classList.toggle("bad", bad.length>0);
     card.classList.toggle("mvp", window.__mvp === i);
-    st.textContent = bad.length ? "⚠ 피로도 초과 — " + [...new Set(bad)].join(", ") : "";
+    const wn = st.querySelector(".pgwarn");
+    if (wn) wn.textContent = bad.length ? "⚠ 피로도 초과 — " + [...new Set(bad)].join(", ") : "";
+    const out = st.querySelector(".pgout");
+    if (out){
+      const cur = posOf(p);
+      out.className = "pgout";
+      if (cur == null) out.textContent = "";
+      else {
+        const from = prevPos(i);
+        if (cur < from - 1e-9){
+          out.className = "pgout back";
+          out.textContent = "⚠ 앞 파티(" + posTxt(from) + ")보다 뒤입니다";
+        } else {
+          /* 라운드마다 보스 체력이 달라 단위가 다르다 — 합산하지 않고 라운드별로만 적는다 */
+          const parts = splitRounds(from, cur);
+          let txt = parts.length
+            ? parts.map(([r,v]) => r + "R " + pctTxt(v)).join("  ·  ")
+            : "처리량 없음";
+          /* 표 기준으로 이만큼이면 몇 점인지, 실제와 얼마나 다른지.
+             앞 파티가 진행을 안 적었으면 이 구간이 이 파티 몫이 아니므로 비교하지 않는다. */
+          let chain = true;
+          for (let k = i-1; k >= 1; k--){
+            const q = P(k);
+            if (posOf(q) != null) break;
+            if (SLOTKEY.some(x => q[x]) || q.score){ chain = false; break; }
+          }
+          const a = cumAt(from), c = cumAt(cur);
+          if (chain && a != null && c != null && parts.length){
+            const exp = Math.round(c - a);
+            txt += "   표 " + exp.toLocaleString("en-US");
+            const sc = Number(p.score) || 0;
+            if (sc){
+              const d = sc - exp;
+              txt += " · 실제 " + (d >= 0 ? "+" : "−") + Math.abs(d).toLocaleString("en-US");
+            }
+          }
+          out.textContent = txt;
+        }
+      }
+    }
     const cz = document.querySelector('.ptcz[data-c="'+i+'"]');
     if (cz){
       const v = partyCost(p);
@@ -2374,7 +2592,12 @@ function renderPicker(){
     b.style.cssText = elStyle(c.el);
     b.appendChild(avatarFor(n, c.el));
     const nm=document.createElement("span"); nm.className="nm"; nm.textContent=n; b.appendChild(nm);
-    const ft=document.createElement("span"); ft.className="ft"; ft.textContent=c.note; b.appendChild(ft);
+    const ft=document.createElement("span"); ft.className="ft";
+    tagsOf(c.note).slice(0,5).forEach(t=>{
+      const g=document.createElement("span"); g.className="tg"; g.textContent=t; ft.appendChild(g);
+    });
+    ft.title = c.note || "";
+    b.appendChild(ft);
     const rm=document.createElement("span"); rm.className="rm";
     rm.textContent = (left<=0 ? "소진" : "여유 "+left) + " · " + num(unitCost(n));
     rm.title = "COST " + num(unitCost(n)); b.appendChild(rm);
@@ -2403,7 +2626,7 @@ $("clrBtn").addEventListener("click", clearSlot);
 $("q").addEventListener("input", ()=>{ if (pick) renderPicker(); });
 document.addEventListener("keydown", e=>{
   if (e.key!=="Escape") return;
-  if (pick) closePicker(); else if (preFor != null) closePreset();
+  if (pick) closePicker(); else if (!$("psheet").hidden) closePreset();
   else if (!$("asheet").hidden) closeArchive();
   else if (!$("gsheet").hidden) closeGuide();
   else if (!$("ssheet").hidden) closeSeason();
