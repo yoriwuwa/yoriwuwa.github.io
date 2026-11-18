@@ -691,6 +691,7 @@ body.sheet-open{position:fixed;left:0;right:0;width:100%;overflow:hidden}
         <tr><td class="k">구성 고치기</td><td>상단 <b>프리셋</b>에서 자리 버튼을 눌러 한 명씩 교체. 선택창에서 비우면 그 자리는 건드리지 않는 프리셋이 됩니다</td></tr>
         <tr><td class="k">시즌에서 만들기</td><td>시즌 기록에서 보관 시즌을 펼치면 <b>이 시즌 편성을 프리셋으로</b>. 이미 같은 구성이 있으면 건너뜁니다</td></tr>
         <tr><td class="k">정렬</td><td>내 순서 / 지난 시즌 점수순 / COST 높은순 · 낮은순 / 이름순. 점수는 가장 최근 보관 시즌에서 그 구성이 낸 값입니다</td></tr>
+        <tr><td class="k">내보내기</td><td>시즌 기록 맨 아래. 파티·프리셋·보관 시즌·명부 수정을 JSON 한 파일로 받는다. 사이트와 아티팩트 사이를 이 파일로 옮긴다</td></tr>
         <tr><td class="k">시즌 보관</td><td>그때의 COST까지 같이 굳습니다. 나중에 돌파를 더 해도 과거 기록은 그대로</td></tr>
         <tr><td class="k">편성 비우기</td><td>파티만 비웁니다. 프리셋과 명부는 남습니다</td></tr>
       </tbody></table>
@@ -735,7 +736,8 @@ body.sheet-open{position:fixed;left:0;right:0;width:100%;overflow:hidden}
     <button class="ar-danger" id="arClear">편성 비우기 — 다음 시즌 시작</button>
     <div class="imp">
       <label class="impb">데이터 가져오기<input type="file" id="impFile" accept=".json,application/json"></label>
-      <span class="imp-h">내보낸 JSON 파일을 올리면 파티·프리셋·보관 시즌·명부가 내 영역으로 들어옵니다</span>
+      <button class="impb" id="expBtn">데이터 내보내기</button>
+      <span class="imp-h">내보내기로 받은 JSON을 다른 기기나 아티팩트에서 가져오기 하면 그대로 옮겨집니다</span>
     </div>
   </div>
 </div>
@@ -1993,6 +1995,40 @@ async function savePortrait(name, uri){
   catch(e){ flash("관리자만 초상을 넣을 수 있습니다"); }
 }
 
+/* ── 내 데이터 내보내기 ──
+   가져오기가 읽는 것과 같은 모양으로 묶는다. 사이트와 아티팩트 사이를 이 파일로 오간다. */
+function exportData(){
+  const out = { parties:{}, presets:{}, archives:{}, roster:{} };
+  Object.keys(parties).forEach(k=>{ if (Object.keys(parties[k]||{}).length) out.parties[k] = parties[k]; });
+  Object.keys(presets).forEach(k=>{ out.presets[k] = presets[k]; });
+  Object.keys(archives).forEach(k=>{ out.archives[k] = archives[k]; });
+  Object.keys(over).forEach(k=>{ if (Object.keys(over[k]||{}).length) out.roster[k] = over[k]; });
+  const n = Object.keys(out.parties).length + Object.keys(out.presets).length
+          + Object.keys(out.archives).length;
+  if (!n){ flash("내보낼 내용이 없습니다"); return; }
+  const txt = JSON.stringify(out);
+  const d = new Date(), pad = x => String(x).padStart(2,"0");
+  const name = "매트릭스-" + d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + ".json";
+  /* 아티팩트 안에서는 내려받기가 막혀 있어 클립보드로 간다 */
+  if (window.claude && window.claude.use){
+    navigator.clipboard.writeText(txt)
+      .then(()=>flash("클립보드에 복사했습니다 — 메모장에 붙여 .json으로 저장하세요"))
+      .catch(()=>flash("복사하지 못했습니다"));
+    return;
+  }
+  try {
+    const url = URL.createObjectURL(new Blob([txt], {type:"application/json"}));
+    const a = document.createElement("a");
+    a.href = url; a.download = name; document.body.appendChild(a); a.click();
+    setTimeout(()=>{ a.remove(); URL.revokeObjectURL(url); }, 1000);
+    flash(name + " 내려받는 중…");
+  } catch(e){
+    /* 내려받기가 막힌 곳(아티팩트)에서는 클립보드로 */
+    try { navigator.clipboard.writeText(txt); flash("내려받기가 막혀 클립보드로 복사했습니다"); }
+    catch(e2){ flash("내보내지 못했습니다"); }
+  }
+}
+
 /* ── 내 데이터 가져오기 ── */
 async function importData(file){
   let j;
@@ -2633,6 +2669,7 @@ document.addEventListener("keydown", e=>{
   else if (!$("esheet").hidden) closeEff();
 });
 $("arBtn").addEventListener("click", openArchive);
+$("expBtn").addEventListener("click", exportData);
 $("impFile").addEventListener("change", e=>{
   const f = e.target.files && e.target.files[0];
   e.target.value = "";
