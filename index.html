@@ -1196,7 +1196,17 @@ async function boot(){
       if (suspendSync) return;
       const next = {};
       sn.docs.forEach(d => { if (d.exists) next[d.id] = d.data(); });
-      parties = next; render();
+      /* 지금 입력 중인 파티는 화면 값을 지킨다 — 방금 저장한 게 되돌아오면서
+         아직 저장 전인 옆 칸(탭으로 막 넘어온 칸)을 비우는 걸 막는다 */
+      const ae = document.activeElement;
+      const edit = ae && ae.dataset ? ae.dataset.p : null;
+      if (edit){
+        if (parties[edit]) next[edit] = parties[edit];
+        else delete next[edit];
+      }
+      /* 내가 쓴 것이 그대로 돌아온 것뿐이면 다시 그리지 않는다 */
+      if (JSON.stringify(next) === JSON.stringify(parties)) return;
+      parties = next; renderKeepFocus();
     }, ()=>{});
     db.collection(U+"presets").onSnapshot(sn => {
       if (suspendPre) return;
@@ -2376,6 +2386,21 @@ function partyEl(p){
   return e1;
 }
 
+/* 다시 그려도 입력 중이던 칸과 커서 위치를 되돌려 준다.
+   탭으로 칸을 넘기는 중에 저장이 끼어들어도 흐름이 끊기지 않는다. */
+function renderKeepFocus(){
+  const ae = document.activeElement;
+  let keep = null;
+  if (ae && ae.dataset && ae.dataset.p && ae.dataset.f){
+    keep = { p: ae.dataset.p, f: ae.dataset.f, s: ae.selectionStart, e: ae.selectionEnd };
+  }
+  render();
+  if (!keep) return;
+  const el = document.querySelector('[data-p="'+keep.p+'"][data-f="'+keep.f+'"]');
+  if (!el) return;
+  el.focus();
+  try { if (keep.s != null) el.setSelectionRange(keep.s, keep.e); } catch(_){}
+}
 function render(){ renderSummary(); renderBoard(); renderRoster(); renderSePanel();
   if (pick) renderPicker(); }
 
@@ -2472,6 +2497,7 @@ function renderBoard(){
     card.appendChild(elw);
     const sc=document.createElement("input"); sc.className="score"; sc.type="text";
     sc.inputMode="numeric"; sc.placeholder="점수"; sc.id="sc"+i;
+    sc.dataset.p = String(i); sc.dataset.f = "score";
     sc.value = p.score ? p.score.toLocaleString("en-US") : "";
     sc.addEventListener("input", ()=>{
       const v = parseInt(sc.value.replace(/[^\d]/g,""),10);
@@ -2564,6 +2590,7 @@ function renderBoard(){
         markCards(); renderSummary();
       });
       e.addEventListener("change", ()=>saveParty(i));
+      e.dataset.p = String(i); e.dataset.f = key;   // 저장 후 포커스를 되찾기 위한 표식
       pgw.appendChild(e);
       return e;
     };
@@ -2601,6 +2628,7 @@ function renderBoard(){
     /* 예외적인 것만 적는 자리 — 히유키 거합 수처럼 캐릭마다 다른 지표 */
     const nt = document.createElement("input"); nt.className = "pgnote"; nt.type = "text";
     nt.placeholder = "비고"; nt.value = p.note || "";
+    nt.dataset.p = String(i); nt.dataset.f = "note";
     nt.title = "계산에는 쓰지 않는 메모 — 예: 21거합";
     nt.addEventListener("input", ()=>{
       const id=String(i); parties[id]=Object.assign({},parties[id]);
