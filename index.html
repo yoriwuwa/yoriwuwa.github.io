@@ -252,7 +252,9 @@ input{font:inherit;color:inherit}
   padding:2px 4px;font-family:var(--mono);font-size:.7rem;text-align:center;color:var(--fg)}
 .pgi.w{width:40px}
 .pgi:focus{border-color:var(--accent);outline:none}
-.pgu{font-size:.63rem;color:var(--faint);margin-left:-2px}
+.pgu{font-size:.63rem;color:var(--faint);margin-left:-2px;padding:2px 4px;border-radius:4px;
+  border:1px dashed transparent;cursor:pointer;white-space:nowrap}
+.pgu:hover{color:var(--accent);border-color:var(--accent)}
 .libsel{background:var(--sunk);border:1px solid var(--line);border-radius:5px;
   padding:1px 2px;font-family:var(--mono);font-size:.68rem;color:var(--dim);cursor:pointer}
 .libsel.on{border-color:var(--accent);color:var(--accent)}
@@ -828,7 +830,8 @@ body.light .bs-av{border-color:color-mix(in srgb,var(--fg) 20%,transparent);
 
       <h4>보스 진행</h4>
       <table><tbody>
-        <tr><td class="k">적는 것</td><td>그 파티가 <b>끝낸 자리</b>만 적는다 — 라운드 · 보스 번호 · 그 보스를 깎은 %</td></tr>
+        <tr><td class="k">적는 것</td><td>그 파티가 <b>끝낸 자리</b>만 적는다 — 라운드 · 보스 번호 · 그 보스의 %</td></tr>
+        <tr><td class="k">% 기준</td><td>칸 옆의 <b>잔여% / 처리%</b> 글자를 누르면 기준이 바뀐다. 기본은 <b>잔여%</b> — 인게임 결과창에 뜨는 남은 체력을 그대로 적으면 된다. 저장되는 값은 어느 쪽이든 같다</td></tr>
         <tr><td class="k">계산</td><td>앞 파티가 끝낸 자리에서 이어받는다. 두 자리의 차이가 그 파티가 처리한 양</td></tr>
         <tr><td class="k">단위</td><td>보스 한 마리 = 100%. 라운드를 넘겼으면 <b>2R 63% · 3R 23%</b>처럼 라운드별로 쪼개 보여준다</td></tr>
         <tr><td class="k">합산 안 함</td><td>라운드가 오르면 보스 체력도 오르므로 라운드끼리 더한 값은 뜻이 없다. 그래서 합계는 내지 않는다</td></tr>
@@ -1182,7 +1185,10 @@ async function boot(){
     const pr = await db.collection(U+"presets").get();
     pr.docs.forEach(d => { if (d.exists) presets[d.id] = d.data(); });
     const pf = await db.doc(U+"config/prefs").get();
-    if (pf.exists && pf.data().theme === "light") applyTheme("light");
+    if (pf.exists){
+      if (pf.data().theme === "light") applyTheme("light");
+      if (pf.data().pgMode === "done") pgMode = "done";
+    }
   } catch(e){
     // 승인 목록에 없으면 읽기부터 막힌다
     if (String(e && e.code || e).indexOf("permission") >= 0) denied = true;
@@ -1311,7 +1317,7 @@ const TOUR = [
   { k:"#board .pt .ptcz", h:"파티 COST",
     b:"그 파티에 들어간 투자 비용입니다. 돌파와 무기 등급으로 계산되며, 점수와 나란히 두면 가성비가 바로 보입니다." },
   { k:"#board .pt .pg", h:"보스 진행",
-    b:"그 파티가 <b>끝낸 자리</b>만 적습니다 — 라운드, 보스 번호, 그 보스를 깎은 %. 앞 파티에서 이어받아 그 파티가 처리한 양이 오른쪽에 <b>2R 63% · 3R 23%</b>처럼 라운드별로 나옵니다. 보스 한 마리가 100%입니다. 옆의 <b>해방</b>은 그 파티가 돌린 사이클(4 · 4.5 · 5)입니다." },
+    b:"그 파티가 <b>끝낸 자리</b>만 적습니다 — 라운드, 보스 번호, 그 보스의 %. 칸 옆의 <b>잔여%</b> 글자를 누르면 <b>처리%</b> 기준으로 바뀝니다. 기본인 잔여% 상태에서는 인게임 결과창의 남은 체력을 그대로 넣으면 됩니다. 앞 파티에서 이어받아 그 파티가 처리한 양이 오른쪽에 <b>2R 63% · 3R 23%</b>처럼 라운드별로 나옵니다. 보스 한 마리가 100%입니다. 옆의 <b>해방</b>은 그 파티가 돌린 사이클(4 · 4.5 · 5)입니다." },
   { k:"#board .pt .pt-no", h:"프리셋 저장은 여기",
     b:"<b>파티 N</b> 글자를 누르면 지금 편성을 이름 붙여 저장하거나, 저장해둔 프리셋을 불러올 수 있습니다." },
   { k:"#board .pt .elwrap", h:"속성칸과 접대",
@@ -1946,14 +1952,31 @@ async function removePreset(id){
 
 /* 밝기 — 기본은 다크. 라이트로 바꾸면 저장해서 다음에도 유지한다. */
 let theme = "dark";
+/* 보스 진행 % 를 어느 기준으로 적을지.
+   인게임 결과창은 남은 체력을 보여주므로 기본은 "잔여". 저장되는 값은 늘 처리량이다. */
+let pgMode = "left";
 function applyTheme(t){
   theme = (t === "light") ? "light" : "dark";
   document.body.classList.toggle("light", theme === "light");
-  const b = $("thBtn"); if (b) b.textContent = theme === "light" ? "라이트" : "다크";
+  const b = $("thBtn");
+  if (b){
+    const lab = b.querySelector("b");            // 아이콘을 지우지 않도록 글자만 갈아끼운다
+    if (lab) lab.textContent = theme === "light" ? "라이트" : "다크";
+    b.title = theme === "light" ? "어둡게" : "밝게";
+  }
 }
-async function saveTheme(){
+async function savePrefs(){
   if (!db) return;
-  try { await db.doc(U+"config/prefs").set({ theme }); } catch(e){}
+  try { await db.doc(U+"config/prefs").set({ theme, pgMode }); } catch(e){}
+}
+const saveTheme = savePrefs;
+/* 처리 % ↔ 잔여 % — 저장값은 처리량으로 고정이고 화면 표기만 뒤집는다 */
+const pgFlip = v => Math.round((100 - v) * 100) / 100;
+const pgShow = v => (pgMode === "left") ? pgFlip(v) : v;
+function togglePgMode(){
+  pgMode = (pgMode === "left") ? "done" : "left";
+  flash(pgMode === "left" ? "보스 칸을 남은 체력 기준으로 적습니다" : "보스 칸을 처리한 양 기준으로 적습니다");
+  savePrefs(); render();
 }
 
 /* ───────── 보스 진행 ─────────
@@ -2582,11 +2605,16 @@ function renderBoard(){
       const l = document.createElement("label"); l.textContent = lab; pgw.appendChild(l);
       const e = document.createElement("input"); e.className = "pgi" + (wide ? " w" : "");
       e.type = "text"; e.inputMode = "numeric"; e.placeholder = ph;
-      e.value = (p[key] != null && p[key] !== "") ? String(p[key]) : "";
+      const isPg = (key === "pg");
+      e.value = (p[key] != null && p[key] !== "")
+        ? String(isPg ? pgShow(Number(p[key])) : p[key]) : "";
       e.addEventListener("input", ()=>{
         const id=String(i); parties[id] = Object.assign({}, parties[id]);
-        const v = parseFloat(e.value.replace(/[^\d.]/g,""));
-        if (Number.isFinite(v)) parties[id][key] = v; else delete parties[id][key];
+        let v = parseFloat(e.value.replace(/[^\d.]/g,""));
+        if (Number.isFinite(v)){
+          if (isPg){ v = Math.max(0, Math.min(100, v)); if (pgMode === "left") v = pgFlip(v); }
+          parties[id][key] = v;
+        } else delete parties[id][key];
         markCards(); renderSummary();
       });
       e.addEventListener("change", ()=>saveParty(i));
@@ -2597,7 +2625,13 @@ function renderBoard(){
     const rdIn = mkPg("rd", "라운드", "—");
     const bsIn = mkPg("bs", "보스", "—");
     const pgIn = mkPg("pg", "", "—", true);
-    const pu = document.createElement("span"); pu.className="pgu"; pu.textContent="%";
+    /* % 단위 표시가 곧 기준 전환 버튼 — 인게임 결과창은 남은 체력을 보여준다 */
+    const pu = document.createElement("button"); pu.type = "button"; pu.className = "pgu";
+    pu.textContent = (pgMode === "left") ? "잔여%" : "처리%";
+    pu.title = (pgMode === "left")
+      ? "남은 체력 기준으로 적는 중 — 인게임 결과창 숫자를 그대로 넣으면 됩니다. 누르면 처리량 기준으로 바뀝니다"
+      : "처리한 양 기준으로 적는 중 — 누르면 남은 체력 기준으로 바뀝니다";
+    pu.addEventListener("click", togglePgMode);
     pgw.appendChild(pu);
     /* 인게임 작전 결과처럼 보스 진행률을 가는 막대로 같이 보여준다 */
     const bar = document.createElement("span"); bar.className = "pgbar";
