@@ -1,3 +1,10 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#161c22">
 <title>매트릭스 콘솔</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -526,6 +533,9 @@ body.sheet-open{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 .flash{position:fixed;left:50%;transform:translateX(-50%);bottom:22px;z-index:60;
   background:var(--fg);color:var(--bg);font-size:.78rem;padding:9px 16px;border-radius:999px;
   box-shadow:0 6px 24px rgba(0,0,0,.26)}
+.flash .fu{margin-left:13px;font-size:.76rem;font-weight:700;color:var(--bg);
+  border-bottom:1.5px solid color-mix(in srgb,var(--bg) 42%,transparent);padding:0 1px}
+.flash .fu:hover{border-bottom-color:var(--bg)}
 @media(prefers-reduced-motion:no-preference){.flash{animation:up .22s ease}}
 @keyframes up{from{opacity:0;transform:translate(-50%,8px)}}
 
@@ -590,16 +600,23 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 /* 버튼 — 둥근 알약 대신 각진 콘솔 키 */
 .ghost{border-radius:3px;font-size:.76rem;padding:7px 11px;letter-spacing:.01em;
   position:relative;background:var(--sunk);display:inline-flex;align-items:center;gap:6px}
+/* display 를 깔면서 hidden 속성이 먹히지 않고 있었다 */
+.ghost[hidden]{display:none}
 .ghost::before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);
   width:2px;height:0;background:var(--accent);transition:height .14s ease}
 .ghost:hover::before,.ghost[aria-pressed="true"]::before{height:62%}
 .ghost b{font-weight:500}
 
-/* 도구 줄 — 읽는 창 / 데이터 / 모드를 구분선으로 나눈다. 절대 두 줄로 안 접힌다 */
-.tools{display:flex;align-items:center;gap:0;flex-wrap:nowrap;min-width:0}
-.tg-set{display:flex;align-items:center;gap:7px}
+/* 도구 줄 — 안내 / 자료 / 설정 세 묶음. 묶음마다 머리글을 얹는다. 두 줄로 안 접힌다 */
+.tools{display:flex;align-items:flex-end;gap:0;flex-wrap:nowrap;min-width:0}
+.tg-set{display:flex;flex-direction:column;align-items:flex-start;gap:5px}
+.tg-row{display:flex;align-items:center;gap:7px}
+.tg-lab{font-family:var(--mono);font-size:.57rem;font-weight:600;letter-spacing:.18em;
+  color:var(--faint);padding-left:3px;white-space:nowrap}
 .tg-set + .tg-set{margin-left:11px;padding-left:11px;
   border-left:1px solid color-mix(in srgb,var(--fg) 14%,transparent)}
+/* 되돌리기는 세 묶음 밖 — 되돌릴 게 있을 때만 구분선과 함께 나타난다 */
+.tg-act.off{margin-left:0;padding-left:0;border-left:none}
 /* 인게임 단말기 아이콘을 마스크로 쓴다 — 글자색을 그대로 따라간다 */
 .gi{width:15px;height:15px;flex:0 0 auto;background:currentColor;
   -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
@@ -618,7 +635,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 .ghost.ic-only b{display:none}
 .ghost.ic-only{padding-inline:9px}
 /* 좁아지면 글자를 접고 아이콘만 — 두 줄로 밀리는 것보다 낫다 */
-@media(max-width:1340px){
+@media(max-width:1460px){   /* 되돌리기가 늘면서 한 줄에 안 들어가는 폭이 넓어졌다 */
   .ghost b{display:none}
   .ghost{padding-inline:9px}
   .gi{width:17px;height:17px}
@@ -679,6 +696,48 @@ body.light .bs-av{border-color:color-mix(in srgb,var(--fg) 20%,transparent);
 @media(prefers-reduced-motion:no-preference){.pgbar::after{transition:width .16s ease}}
 .pgbar[data-on="0"]{opacity:.3}
 @media(max-width:620px){.pgbar{display:none}}
+
+
+/* 되돌리기 아이콘 */
+.gi[data-ic="undo"]{-webkit-mask-image:url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTIyIDE0IDEwIDI2bDEyIDEyIi8+PHBhdGggZD0iTTEwIDI2aDI2YTE1IDE1IDAgMCAxIDAgMzBIMjQiLz48L3N2Zz4=);mask-image:url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utd2lkdGg9IjYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTIyIDE0IDEwIDI2bDEyIDEyIi8+PHBhdGggZD0iTTEwIDI2aDI2YTE1IDE1IDAgMCAxIDAgMzBIMjQiLz48L3N2Zz4=)}
+/* 이 파티가 때린 보스 — 진행 구간에서 자동으로 뽑는다 */
+.bsrun{display:flex;align-items:center;gap:5px;flex-wrap:wrap;flex:0 0 auto}
+.bsc{display:inline-flex;align-items:center;gap:4px;font-size:.62rem;font-weight:500;
+  color:var(--dim);background:var(--sunk);border:1px solid var(--line);
+  border-radius:999px;padding:2px 8px 2px 2px;white-space:nowrap}
+.bsc img{width:17px;height:17px;border-radius:50%;object-fit:cover;flex:0 0 auto;
+  border:1px solid color-mix(in srgb,var(--fg) 22%,transparent)}
+.bsc .el-ic{width:11px;height:11px}
+.bsx{font-style:normal;font-size:.56rem;color:var(--faint);margin-left:1px}
+@media(max-width:860px){.bsrun{display:none}}
+/* 아직 안 적은 다음 파티에 이어받을 자리를 흘려 둔다 */
+.pgout.hint{color:var(--faint);font-weight:500}
+/* 요약 스트립 보조 줄 — 표 기준 누적과 지난 시즌 대비 */
+.sum .sub{display:block;margin-top:5px;font-family:var(--mono);font-size:.63rem;
+  font-weight:500;color:var(--faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sum .sub .up{color:var(--accent)}
+.sum .sub .dn{color:var(--danger)}
+/* 파티 줄 오른쪽 작은 버튼들 */
+.ptdup{flex:0 0 auto;font-size:.62rem;font-weight:600;color:var(--faint);letter-spacing:.02em;
+  border:1px solid var(--line);border-radius:999px;padding:3px 9px;white-space:nowrap}
+.ptdup:hover:not(:disabled){color:var(--accent);border-color:var(--accent)}
+.ptdup:disabled{opacity:.25;cursor:default}
+
+/* 좁은 화면에서 진행 줄이 화면 밖으로 밀리던 것 — 비고 칸부터 접어 내린다 */
+@media(max-width:620px){
+  .pg{flex:1 1 100%;min-width:0;flex-wrap:wrap;row-gap:6px}
+  .pgnote{flex:1 1 90px;width:auto;min-width:0;margin-left:0}
+}
+
+/* 코너 브래킷(.brk)의 position:relative 가 옆 패널의 sticky 를 덮어쓰고 있었다.
+   스크롤을 내려도 명부와 시즌 패널이 따라오도록 여기서 다시 세운다. */
+.roster.brk{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);
+  max-height:calc(100vh - 40px)}
+@media(max-width:980px){.roster.brk{position:static;max-height:none}}
+@media(min-width:1600px){
+  .sepan.brk{position:sticky;top:12px;
+    max-height:calc(100vh - 24px);overflow-y:auto;overscroll-behavior:contain}
+}
 </style>
 
 <div class="wrap">
@@ -699,26 +758,40 @@ body.light .bs-av{border-color:color-mix(in srgb,var(--fg) 20%,transparent);
     <!-- 성격이 다른 셋을 구분선으로 나눈다: 읽는 창 / 데이터를 옮기는 것 / 화면 모드 -->
     <nav class="tools">
       <span class="tg-set">
-        <button class="ghost" id="tipBtn" title="사용법 둘러보기"><i class="gi" data-ic="tutorial"></i><b>사용법</b></button>
-        <button class="ghost" id="seBtn" title="이번 시즌 보스와 카드"><i class="gi" data-ic="codex"></i><b>시즌 특성</b></button>
-        <button class="ghost" id="gdBtn" title="표기와 계산 규칙"><i class="gi" data-ic="guide"></i><b>규칙</b></button>
-        <button class="ghost" id="efBtn" title="COST 대비 점수"><i class="gi" data-ic="scope"></i><b>효율</b></button>
+        <span class="tg-lab">안내</span>
+        <span class="tg-row">
+          <button class="ghost" id="tipBtn" title="사용법 둘러보기"><i class="gi" data-ic="tutorial"></i><b>사용법</b></button>
+          <button class="ghost" id="gdBtn" title="명전·풀돌·접대·도달 — 이 판에서 쓰는 말과 계산"><i class="gi" data-ic="guide"></i><b>용어</b></button>
+        </span>
       </span>
       <span class="tg-set">
-        <button class="ghost" id="preBtn" title="프리셋 저장·불러오기"><i class="gi" data-ic="party"></i><b>프리셋</b></button>
-        <button class="ghost" id="arBtn" title="시즌을 통째로 보관"><i class="gi" data-ic="trophy"></i><b>시즌 기록</b></button>
+        <span class="tg-lab">자료</span>
+        <span class="tg-row">
+          <button class="ghost" id="preBtn" title="프리셋 저장·불러오기"><i class="gi" data-ic="party"></i><b>프리셋</b></button>
+          <button class="ghost" id="seBtn" title="이번 시즌 보스와 카드"><i class="gi" data-ic="codex"></i><b>시즌 특성</b></button>
+          <button class="ghost" id="arBtn" title="시즌을 통째로 보관"><i class="gi" data-ic="trophy"></i><b>기록</b></button>
+          <button class="ghost" id="efBtn" title="COST 대비 점수"><i class="gi" data-ic="scope"></i><b>효율</b></button>
+        </span>
       </span>
       <span class="tg-set">
-        <button class="ghost" id="ordBtn" aria-pressed="false" title="파티 순서 바꾸기"><i class="gi" data-ic="order"></i><b>순서 편집</b></button>
-        <button class="ghost" id="editBtn" aria-pressed="false" title="명부 고치기"><i class="gi" data-ic="res"></i><b>명부 편집</b></button>
-        <button class="ghost ic-only" id="thBtn" title="밝기 전환"><i class="gi" data-ic="theme"></i><b>다크</b></button>
-        <button class="ghost" id="outBtn" hidden>로그아웃</button>
+        <span class="tg-lab">설정</span>
+        <span class="tg-row">
+          <button class="ghost" id="ordBtn" aria-pressed="false" title="파티 순서 바꾸기"><i class="gi" data-ic="order"></i><b>순서 편집</b></button>
+          <button class="ghost" id="editBtn" aria-pressed="false" title="명부 고치기"><i class="gi" data-ic="res"></i><b>명부 편집</b></button>
+          <button class="ghost ic-only" id="thBtn" title="밝기 전환"><i class="gi" data-ic="theme"></i><b>다크</b></button>
+          <button class="ghost" id="outBtn" hidden>로그아웃</button>
+        </span>
+      </span>
+      <span class="tg-set tg-act">
+        <span class="tg-row">
+          <button class="ghost" id="unBtn" hidden title="되돌리기"><i class="gi" data-ic="undo"></i><b>되돌리기</b></button>
+        </span>
       </span>
     </nav>
   </header>
 
   <dl class="sum brk">
-    <div><dt>총 점수</dt><dd id="sTotal">—</dd></div>
+    <div><dt>총 점수</dt><dd id="sTotal">—</dd><span class="sub" id="sTotalSub"></span></div>
     <div><dt>최고 점수</dt><dd id="sBest">—</dd></div>
     <div class="mvp"><dt>MVP 파티</dt><dd id="sMvp">—</dd></div>
     <div class="cap"><dt>편성</dt><dd id="sCap">—</dd></div>
@@ -779,7 +852,7 @@ body.light .bs-av{border-color:color-mix(in srgb,var(--fg) 20%,transparent);
   <div class="veil" id="gveil"></div>
   <div class="panel" role="dialog" aria-modal="true" aria-labelledby="gdTitle">
     <div class="p-hd">
-      <h3 id="gdTitle">표기와 계산 규칙</h3><span class="sp"></span>
+      <h3 id="gdTitle">용어와 계산 규칙</h3><span class="sp"></span>
       <button class="p-x" id="gdClose" aria-label="닫기">✕</button>
     </div>
     <div class="gd">
@@ -841,6 +914,9 @@ body.light .bs-av{border-color:color-mix(in srgb,var(--fg) 20%,transparent);
         <tr><td class="k">계산</td><td>앞 파티가 끝낸 자리에서 이어받는다. 두 자리의 차이가 그 파티가 처리한 양</td></tr>
         <tr><td class="k">단위</td><td>보스 한 마리 = 100%. 라운드를 넘겼으면 <b>2R 63% · 3R 23%</b>처럼 라운드별로 쪼개 보여준다</td></tr>
         <tr><td class="k">합산 안 함</td><td>라운드가 오르면 보스 체력도 오르므로 라운드끼리 더한 값은 뜻이 없다. 그래서 합계는 내지 않는다</td></tr>
+        <tr><td class="k">담당 보스</td><td>이어받은 구간에서 그 파티가 실제로 때린 보스를 줄 아래에 띄운다. 마우스를 올리면 라운드·처리한 양·그 보스의 디버프가 나온다. <b>×2</b>는 라운드를 넘기며 같은 보스를 두 번 만났다는 뜻</td></tr>
+        <tr><td class="k">이어서</td><td>아직 진행을 안 적은 첫 파티에는 앞 파티가 끝낸 자리를 흐리게 띄운다 — 거기서부터 적으면 된다</td></tr>
+        <tr><td class="k">되돌리기</td><td>비우기 · 전체 비우기 · 복제 · 프리셋 적용 · 순서 바꾸기 · 보관 시즌 불러오기는 한 단계 되돌릴 수 있다. 동작한 직후 화면 아래 알림에 <b>되돌리기</b>가 같이 뜨고, 그 자리에서 바로 누르면 된다. 알림이 사라진 뒤에도 <b>Ctrl+Z</b> 나 위쪽 <b>되돌리기</b> 버튼으로 되돌릴 수 있다</td></tr>
         <tr><td class="k">도달</td><td>상단 요약의 도달 칸은 가장 멀리 간 파티의 자리. 마우스를 올리면 표 기준 누적 점수가 뜬다</td></tr>
         <tr><td class="k">표 점수</td><td>라운드별 보스 점수표로 환산한 값. <b>표 8,640 · 실제 +142</b>는 그 자리면 8,640점이어야 하는데 142점 더 받았다는 뜻</td></tr>
         <tr><td class="k">해방</td><td>그 파티가 돌린 사이클 — <b>4</b> 기본 · <b>4.5</b> 추가 강공격이나 미완성 사이클 · <b>5</b> 고점. 같은 편성이라도 사이클이 다르면 점수가 달라지므로 점수를 비교할 때 같이 본다</td></tr>
@@ -1233,11 +1309,19 @@ async function boot(){
   } catch(e){}
 }
 let flashT;
-function flash(msg){
+function flash(msg, withUndo){
   let el = document.querySelector(".flash");
   if (!el){ el = document.createElement("div"); el.className="flash"; document.body.appendChild(el); }
-  el.textContent = msg; clearTimeout(flashT);
-  flashT = setTimeout(()=>el.remove(), 2200);
+  el.textContent = msg;
+  /* 되돌리기는 손이 있는 화면 아래에서 바로 — 15번 파티를 건드리고 머리까지 올라갈 일은 없게 */
+  if (withUndo && undoRec){
+    const b = document.createElement("button"); b.type = "button"; b.className = "fu";
+    b.textContent = "되돌리기";
+    b.addEventListener("click", ()=>{ clearTimeout(flashT); el.remove(); doUndo(); });
+    el.appendChild(b);
+  }
+  clearTimeout(flashT);
+  flashT = setTimeout(()=>el.remove(), withUndo ? 9000 : 2200);
 }
 async function saveParty(i){
   const id = String(i), p = parties[id] || {};
@@ -1250,6 +1334,7 @@ async function moveParty(from, to){
   const m = maxParties();
   to = Math.max(1, Math.min(m, to));
   if (from === to) return;
+  pushUndo("파티 순서 바꾸기");
   const arr = [];
   for (let i=1;i<=m;i++) arr.push(parties[String(i)] || null);
   const [mv] = arr.splice(from-1, 1);
@@ -1266,7 +1351,7 @@ async function moveParty(from, to){
   render();
   if (!db) return;
   suspendSync = true;
-  if (changed.length > 4) flash("순서 저장 중…");
+  flash(changed.length > 4 ? "순서 저장 중…" : "순서를 바꿨습니다", true);
   let bad = false;
   for (const i of changed){
     try { await db.doc(U+"parties/"+String(i)).set(parties[String(i)] || {}); }
@@ -1323,7 +1408,7 @@ const TOUR = [
   { k:"#board .pt .ptcz", h:"파티 COST",
     b:"그 파티에 들어간 투자 비용입니다. 돌파와 무기 등급으로 계산되며, 점수와 나란히 두면 가성비가 바로 보입니다." },
   { k:"#board .pt .pg", h:"보스 진행",
-    b:"그 파티가 <b>끝낸 자리</b>만 적습니다 — 라운드, 보스 번호, 그 보스의 %. 칸 옆의 <b>잔여%</b> 글자를 누르면 <b>처리%</b> 기준으로 바뀝니다. 기본인 잔여% 상태에서는 인게임 결과창의 남은 체력을 그대로 넣으면 됩니다. 앞 파티에서 이어받아 그 파티가 처리한 양이 오른쪽에 <b>2R 63% · 3R 23%</b>처럼 라운드별로 나옵니다. 보스 한 마리가 100%입니다. 옆의 <b>해방</b>은 그 파티가 돌린 사이클(4 · 4.5 · 5)입니다." },
+    b:"그 파티가 <b>끝낸 자리</b>만 적습니다 — 라운드, 보스 번호, 그 보스의 %. 칸 옆의 <b>잔여%</b> 글자를 누르면 <b>처리%</b> 기준으로 바뀝니다. 기본인 잔여% 상태에서는 인게임 결과창의 남은 체력을 그대로 넣으면 됩니다. 앞 파티에서 이어받아 그 파티가 처리한 양이 오른쪽에 <b>2R 63% · 3R 23%</b>처럼 라운드별로 나옵니다. 보스 한 마리가 100%입니다. 옆의 <b>해방</b>은 그 파티가 돌린 사이클(4 · 4.5 · 5)입니다. 아래에는 이 파티가 실제로 때린 <b>보스</b>가 뜨고, 아직 안 적은 파티에는 <b>이어서 ○○부터</b>가 흐리게 나옵니다." },
   { k:"#board .pt .pt-no", h:"프리셋 저장은 여기",
     b:"<b>파티 N</b> 글자를 누르면 지금 편성을 이름 붙여 저장하거나, 저장해둔 프리셋을 불러올 수 있습니다." },
   { k:"#board .pt .elwrap", h:"속성칸과 접대",
@@ -1343,7 +1428,7 @@ const TOUR = [
   { k:"#seBtn", h:"시즌 특성 — 이번 보스와 카드",
     b:"보스 5마리의 특성과 버프 카드 4종이 들어 있습니다. 파티 줄의 <b>카드</b> 칸에서 그 파티가 고른 카드를 지정해두면 시즌 기록에 같이 남습니다." },
   { k:"#gdBtn", h:"다 봤습니다",
-    b:"투자 표기와 COST 계산 규칙은 <b>규칙</b>에 정리돼 있습니다. 밝기는 <b>다크</b>로 바꾸고, 이 안내는 <b>사용법</b>으로 언제든 다시 열 수 있습니다." }
+    b:"명전·풀돌 같은 투자 표기와 COST 계산은 <b>용어</b>에 정리돼 있습니다. 밝기는 <b>다크</b>로 바꾸고, 이 안내는 <b>사용법</b>으로 언제든 다시 열 수 있습니다." }
 ];
 let tourAt = -1, tourDom = null, tourSeen = false;
 
@@ -1682,6 +1767,7 @@ async function removeArchive(id){
 async function loadArchive(id){
   const a = archives[id]; if (!a) return;
   arLoadArm = null;
+  pushUndo("보관 시즌 불러오기");
   const touch = new Set(), m = maxParties();
   for (let i = 1; i <= m; i++) if (Object.keys(P(i)).length) touch.add(String(i));
   const next = {};
@@ -1701,12 +1787,13 @@ async function loadArchive(id){
   suspendSync = true;
   for (const k of touch){ try { await db.doc(U+"parties/" + k).set(parties[k] || {}); } catch(e){} }
   suspendSync = false;
-  flash("「" + (a.name || "") + "」 불러왔습니다");
+  flash("「" + (a.name || "") + "」 불러왔습니다", true);
 }
 
 async function clearBoard(){
   if (!arArmed){ arArmed = true; renderArchives(); return; }
   arArmed = false;
+  pushUndo("편성 전체 비우기");
   const m = maxParties(), ids = [];
   for (let i = 1; i <= m; i++){ if (Object.keys(P(i)).length){ delete parties[String(i)]; ids.push(i); } }
   closeArchive(); render();
@@ -1714,20 +1801,117 @@ async function clearBoard(){
   suspendSync = true;
   for (const i of ids){ try { await db.doc(U+"parties/" + String(i)).set({}); } catch(e){} }
   suspendSync = false;
-  flash("편성을 비웠습니다");
+  flash("편성을 비웠습니다", true);
 }
 
 /* 파티 한 자리만 비운다 — 편성·진행·점수·비고까지 그 칸만 깨끗이 */
 async function clearParty(i){
   const id = String(i);
   if (!Object.keys(P(i)).length) return;
+  pushUndo("파티 " + pno(i) + " 비우기");
   delete parties[id];
   render();
-  flash("파티 " + pno(i) + " 비웠습니다");
+  flash("파티 " + pno(i) + " 비웠습니다", true);
   if (!db) return;
   suspendSync = true;
   try { await db.doc(U+"parties/"+id).set({}); } catch(e){ flash("저장하지 못했습니다"); }
   suspendSync = false;
+}
+
+/* ───────── 되돌리기 ─────────
+   편성을 통째로 바꾸는 동작은 직전 상태를 한 단계만 들고 있다가 되돌린다. */
+let undoRec = null;
+function pushUndo(label){
+  undoRec = { label, snap: JSON.parse(JSON.stringify(parties)) };
+  renderUndo();
+}
+function renderUndo(){
+  const b = $("unBtn"); if (!b) return;
+  b.hidden = !undoRec;
+  const box = document.querySelector(".tg-act");
+  if (box) box.classList.toggle("off", !undoRec);
+  if (undoRec) b.title = undoRec.label + " — 되돌리기";
+}
+async function doUndo(){
+  if (!undoRec) return;
+  const prev = undoRec.snap, lab = undoRec.label;
+  undoRec = null;
+  const m = maxParties(), ids = [];
+  for (let i = 1; i <= m; i++){
+    const id = String(i);
+    if (JSON.stringify(parties[id] || {}) !== JSON.stringify(prev[id] || {})) ids.push(id);
+  }
+  parties = JSON.parse(JSON.stringify(prev));
+  render();
+  flash(lab + " — 되돌렸습니다");
+  if (!db) return;
+  suspendSync = true;
+  for (const id of ids){ try { await db.doc(U+"parties/"+id).set(parties[id] || {}); } catch(e){} }
+  suspendSync = false;
+}
+
+/* 편성만 가까운 빈 자리에 복사한다. 진행·점수·접대는 그 파티의 결과라 가져오지 않는다. */
+async function dupParty(i){
+  const src = P(i);
+  if (!Object.keys(src).length) return;
+  const m = maxParties();
+  let dst = 0;
+  for (let k = i+1; k <= m; k++) if (!Object.keys(P(k)).length){ dst = k; break; }
+  if (!dst) for (let k = 1; k <= m; k++) if (!Object.keys(P(k)).length){ dst = k; break; }
+  if (!dst){ flash("빈 자리가 없습니다"); return; }
+  pushUndo("파티 " + pno(i) + " 복제");
+  const row = {};
+  SLOTKEY.forEach(k=>{ if (src[k]) row[k] = src[k]; });
+  if (src.card) row.card = src.card;
+  if (src.lib)  row.lib  = src.lib;
+  parties[String(dst)] = row;
+  render();
+  flash("파티 " + pno(dst) + "에 복제했습니다", true);
+  await saveParty(dst);
+}
+
+/* 이 파티가 실제로 때린 보스 구간 — [라운드, 보스번호, 보스 단위 비율] */
+function bossSpan(from, to){
+  const out = [];
+  let a = from;
+  while (a < to - 1e-9){
+    const idx = Math.floor(a + 1e-9);
+    const end = Math.min(to, idx + 1);
+    if (end - a > 1e-9) out.push([Math.floor(idx / BOSSN) + 1, (idx % BOSSN) + 1, end - a]);
+    a = end;
+  }
+  return out;
+}
+function bossChips(from, to){
+  const fr = document.createDocumentFragment();
+  const bl = SE().bosses || [], seen = new Map();   /* 보스번호 → 합친 양과 라운드들 */
+  bossSpan(from, to).forEach(([r,b,v])=>{
+    const o = seen.get(b) || { v:0, rds:[] };
+    o.v += v; if (o.rds.indexOf(r) < 0) o.rds.push(r);
+    seen.set(b, o);                                  /* 넣은 차례 = 때린 차례 */
+  });
+  seen.forEach((o, b)=>{
+    const info = bl[b-1] || {}, nm = info.n || ("보스" + b);
+    const c = document.createElement("span"); c.className = "bsc";
+    const no = BOSSPIC[nm];
+    if (no){
+      const im = document.createElement("img"); im.src = "bs/" + no + ".webp";
+      im.alt = ""; im.loading = "lazy"; im.decoding = "async";
+      im.addEventListener("error", ()=>im.remove(), { once:true });
+      c.appendChild(im);
+    }
+    c.appendChild(document.createTextNode(nm));
+    if (o.rds.length > 1){
+      const x = document.createElement("i"); x.className = "bsx";
+      x.textContent = "×" + o.rds.length; c.appendChild(x);
+    }
+    const ic = elIcon(info.el); if (ic) c.appendChild(ic);
+    c.title = o.rds.map(r=>r+"라운드").join(" · ") + " " + nm
+            + " — 이 파티가 처리한 양 " + pctTxt(o.v)
+            + (info.el ? " · " + info.el : "") + (info.d ? "\n" + info.d : "");
+    fr.appendChild(c);
+  });
+  return fr;
 }
 
 /* ───────── 프리셋 ─────────
@@ -1942,11 +2126,12 @@ function renderPresets(){
 async function applyPreset(id){
   const pr = presets[id]; if (!pr || preFor == null) return;
   const i = preFor, key = String(i);
+  pushUndo("파티 " + pno(i) + "에 프리셋 적용");
   parties[key] = Object.assign({}, parties[key]);
   // 프리셋이 지정한 자리만 채운다. 비워둔 자리는 원래 있던 캐릭을 그대로 둔다.
   SLOTKEY.forEach(k=>{ if (pr[k]) parties[key][k] = pr[k]; });
   closePreset(); render(); await saveParty(i);
-  flash("파티 " + i + "에 넣었습니다");
+  flash("파티 " + i + "에 넣었습니다", true);
 }
 
 async function savePreset(){
@@ -2443,7 +2628,7 @@ function renderKeepFocus(){
   el.focus();
   try { if (keep.s != null) el.setSelectionRange(keep.s, keep.e); } catch(_){}
 }
-function render(){ renderSummary(); renderBoard(); renderRoster(); renderSePanel();
+function render(){ renderSummary(); renderBoard(); renderRoster(); renderSePanel(); renderUndo();
   if (pick) renderPicker(); }
 
 function renderSummary(){
@@ -2469,6 +2654,32 @@ function renderSummary(){
   { const c = cumAt(far);
     $("sReach").title = c == null ? ""
       : "표 기준 누적 " + Math.round(c).toLocaleString("en-US") + "점"; }
+  /* 총 점수 아래 — 지금 도달한 자리면 표로는 몇 점인지, 지난 시즌보다 얼마나 나은지 */
+  const sub = $("sTotalSub");
+  if (sub){
+    sub.textContent = "";
+    const put = (txt, cls)=>{
+      if (sub.childNodes.length) sub.appendChild(document.createTextNode("  ·  "));
+      const sp = document.createElement("span"); if (cls) sp.className = cls;
+      sp.textContent = txt; sub.appendChild(sp);
+    };
+    const gap = (d)=> (d >= 0 ? "+" : "−") + Math.abs(d).toLocaleString("en-US");
+    const c = cumAt(far);
+    if (c != null){
+      const exp = Math.round(c);
+      put("표 " + exp.toLocaleString("en-US"));
+      if (total) put(gap(total - exp), total - exp >= 0 ? "up" : "dn");
+    }
+    const last = lastArchive();
+    if (last && total && Number(last.total)){
+      put((last.name || "지난 시즌") + " 대비");
+      const d = total - Number(last.total);
+      sub.appendChild(document.createTextNode(" "));
+      const sp = document.createElement("span");
+      sp.className = d >= 0 ? "up" : "dn"; sp.textContent = gap(d);
+      sub.appendChild(sp);
+    }
+  }
   $("boardSub").textContent = "3인 고정 · 슬롯 "+m+"개";
   window.__mvp = bestI;
 }
@@ -2694,8 +2905,17 @@ function renderBoard(){
     nt.addEventListener("change", ()=>saveParty(i));
     pgw.appendChild(nt);
     st.appendChild(pgw);
+    /* 이 파티가 때린 보스 — markCards 에서 진행에 맞춰 채운다 */
+    const run = document.createElement("span"); run.className = "bsrun"; st.appendChild(run);
     const out = document.createElement("span"); out.className = "pgout"; st.appendChild(out);
     const wn = document.createElement("span"); wn.className = "pgwarn"; st.appendChild(wn);
+    /* 편성만 빈 자리에 그대로 한 벌 더 */
+    const db2 = document.createElement("button"); db2.type = "button"; db2.className = "ptdup";
+    db2.textContent = "복제";
+    db2.title = "이 편성을 가까운 빈 파티에 그대로 복사합니다 (진행·점수는 빼고)";
+    if (!SLOTKEY.some(k=>p[k])) db2.disabled = true;
+    db2.addEventListener("click", ()=>dupParty(i));
+    st.appendChild(db2);
     /* 이 자리만 비우는 버튼 — 실수로 날리지 않게 한 번 더 눌러야 지워진다 */
     const cb = document.createElement("button"); cb.type = "button"; cb.className = "ptclr";
     cb.textContent = "비우기";
@@ -2722,6 +2942,11 @@ function renderBoard(){
 
 function markCards(){
   const m = maxParties();
+  /* 아직 진행을 안 적은 첫 파티 — 여기 이어서 적으면 된다 */
+  let nextIdx = 0;
+  for (let i = 1; i <= m; i++){
+    if (posOf(P(i)) == null){ if (prevPos(i) > 0) nextIdx = i; break; }
+  }
   document.querySelectorAll(".st").forEach(st=>{
     const i = Number(st.dataset.i), p = P(i);
     const names = SLOTKEY.map(k=>p[k]).filter(Boolean);
@@ -2734,11 +2959,28 @@ function markCards(){
     /* 다시 그리지 않고 칸만 채워도 비우기 버튼이 바로 살아나게 */
     const cl = st.querySelector(".ptclr");
     if (cl && !cl.classList.contains("arm")) cl.disabled = !Object.keys(p).length;
+    const dp = st.querySelector(".ptdup");
+    if (dp) dp.disabled = !SLOTKEY.some(k=>p[k]);
+    /* 이 파티가 때린 보스 칩 */
+    const run = st.querySelector(".bsrun");
+    if (run){
+      run.textContent = "";
+      const cu = posOf(p);
+      if (cu != null){
+        const fr0 = prevPos(i);
+        if (cu > fr0 + 1e-9) run.appendChild(bossChips(fr0, cu));
+      }
+    }
     const out = st.querySelector(".pgout");
     if (out){
       const cur = posOf(p);
       out.className = "pgout";
-      if (cur == null) out.textContent = "";
+      if (cur == null){
+        if (i === nextIdx){
+          out.className = "pgout hint";
+          out.textContent = "이어서 " + posTxt(prevPos(i)) + " 부터";
+        } else out.textContent = "";
+      }
       else {
         const from = prevPos(i);
         if (cur < from - 1e-9){
@@ -3046,6 +3288,13 @@ $("pClose").addEventListener("click", closePicker);
 $("clrBtn").addEventListener("click", clearSlot);
 $("q").addEventListener("input", ()=>{ if (pick) renderPicker(); });
 document.addEventListener("keydown", e=>{
+  if ((e.ctrlKey || e.metaKey) && !e.shiftKey && (e.key === "z" || e.key === "Z")){
+    const ae = document.activeElement, tg = ae ? ae.tagName : "";
+    /* 입력칸 안에서는 글자 되돌리기가 먼저다 */
+    if (tg === "INPUT" || tg === "TEXTAREA" || (ae && ae.isContentEditable)) return;
+    if (!undoRec) return;
+    e.preventDefault(); doUndo(); return;
+  }
   if (e.key!=="Escape") return;
   if (pick) closePicker(); else if (!$("psheet").hidden) closePreset();
   else if (!$("asheet").hidden) closeArchive();
@@ -3053,6 +3302,7 @@ document.addEventListener("keydown", e=>{
   else if (!$("ssheet").hidden) closeSeason();
   else if (!$("esheet").hidden) closeEff();
 });
+$("unBtn").addEventListener("click", doUndo);
 $("arBtn").addEventListener("click", openArchive);
 $("expBtn").addEventListener("click", exportData);
 $("impFile").addEventListener("change", e=>{

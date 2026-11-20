@@ -1,0 +1,16 @@
+{
+  "name": "매트릭스 콘솔",
+  "short_name": "콘솔",
+  "description": "종말 매트릭스 파티 편성판 — 피로도·속성·점수를 한 화면에서",
+  "lang": "ko",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "background_color": "#161c22",
+  "theme_color": "#161c22",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
