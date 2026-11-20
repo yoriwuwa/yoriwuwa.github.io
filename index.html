@@ -265,6 +265,12 @@ input{font:inherit;color:inherit}
 .pgout{color:var(--accent);flex:1 1 auto;min-width:0}
 .pgout.back{color:var(--danger)}
 .pgwarn{color:var(--danger);flex:0 0 auto}
+.ptclr{flex:0 0 auto;font-size:.62rem;font-weight:600;color:var(--faint);letter-spacing:.02em;
+  border:1px solid var(--line);border-radius:999px;padding:3px 9px;white-space:nowrap}
+.ptclr:hover:not(:disabled){color:var(--danger);border-color:var(--danger)}
+.ptclr.arm{color:var(--danger);border-color:var(--danger);
+  background:color-mix(in srgb,var(--danger) 15%,transparent)}
+.ptclr:disabled{opacity:.25;cursor:default}
 
 /* ── 명부 ── */
 .roster{background:var(--surface);border:1px solid var(--line);border-radius:11px;
@@ -1711,6 +1717,19 @@ async function clearBoard(){
   flash("편성을 비웠습니다");
 }
 
+/* 파티 한 자리만 비운다 — 편성·진행·점수·비고까지 그 칸만 깨끗이 */
+async function clearParty(i){
+  const id = String(i);
+  if (!Object.keys(P(i)).length) return;
+  delete parties[id];
+  render();
+  flash("파티 " + pno(i) + " 비웠습니다");
+  if (!db) return;
+  suspendSync = true;
+  try { await db.doc(U+"parties/"+id).set({}); } catch(e){ flash("저장하지 못했습니다"); }
+  suspendSync = false;
+}
+
 /* ───────── 프리셋 ─────────
    자주 쓰는 3인 조합을 저장해두고 아무 파티에나 한 번에 넣는다. */
 const preOrder = () => {
@@ -2637,10 +2656,14 @@ function renderBoard(){
     const bar = document.createElement("span"); bar.className = "pgbar";
     const setBar = () => {
       const q = parties[String(i)] || {};
-      const v = Math.max(0, Math.min(100, Number(q.pg) || 0));
+      /* 막대는 칸에 적힌 숫자를 그대로 따라간다 — 잔여 기준이면 남은 체력 막대가 된다 */
+      const has = q.pg != null && q.pg !== "";
+      const v = has ? pgShow(Math.max(0, Math.min(100, Number(q.pg) || 0))) : 0;
       bar.style.setProperty("--v", v + "%");
       bar.dataset.on = (q.rd && q.bs) ? "1" : "0";
-      bar.title = (q.rd && q.bs) ? (q.rd + "라운드 보스" + q.bs + " — " + v + "% 처리") : "라운드와 보스를 먼저 적으세요";
+      bar.title = (q.rd && q.bs)
+        ? (q.rd + "라운드 보스" + q.bs + " — " + v + (pgMode === "left" ? "% 남음" : "% 처리"))
+        : "라운드와 보스를 먼저 적으세요";
     };
     setBar(); pgw.appendChild(bar);
     [rdIn, bsIn, pgIn].forEach(el => el.addEventListener("input", setBar));
@@ -2673,6 +2696,24 @@ function renderBoard(){
     st.appendChild(pgw);
     const out = document.createElement("span"); out.className = "pgout"; st.appendChild(out);
     const wn = document.createElement("span"); wn.className = "pgwarn"; st.appendChild(wn);
+    /* 이 자리만 비우는 버튼 — 실수로 날리지 않게 한 번 더 눌러야 지워진다 */
+    const cb = document.createElement("button"); cb.type = "button"; cb.className = "ptclr";
+    cb.textContent = "비우기";
+    cb.title = "이 파티의 편성 · 진행 · 점수 · 비고를 모두 지웁니다";
+    if (!Object.keys(p).length) cb.disabled = true;
+    let armed = false, armT = null;
+    const disarm = ()=>{ armed=false; clearTimeout(armT); cb.classList.remove("arm"); cb.textContent="비우기"; };
+    cb.addEventListener("click", ()=>{
+      if (!armed){
+        armed = true; cb.classList.add("arm"); cb.textContent = "정말?";
+        cb.title = "한 번 더 누르면 지웁니다";
+        armT = setTimeout(disarm, 2600);
+        return;
+      }
+      disarm(); clearParty(i);
+    });
+    cb.addEventListener("blur", disarm);
+    st.appendChild(cb);
     card.appendChild(st);
     board.appendChild(card);
   }
@@ -2690,6 +2731,9 @@ function markCards(){
     card.classList.toggle("mvp", window.__mvp === i);
     const wn = st.querySelector(".pgwarn");
     if (wn) wn.textContent = bad.length ? "⚠ 피로도 초과 — " + [...new Set(bad)].join(", ") : "";
+    /* 다시 그리지 않고 칸만 채워도 비우기 버튼이 바로 살아나게 */
+    const cl = st.querySelector(".ptclr");
+    if (cl && !cl.classList.contains("arm")) cl.disabled = !Object.keys(p).length;
     const out = st.querySelector(".pgout");
     if (out){
       const cur = posOf(p);
